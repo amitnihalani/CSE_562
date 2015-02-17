@@ -1,0 +1,2 @@
+CREATE TABLE R(A int, B int, C int)
+SELECT B, C FROM R WHERE A = 1
