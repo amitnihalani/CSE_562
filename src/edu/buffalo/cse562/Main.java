@@ -6,8 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import edu.buffalo.cse562.parsers.CreateTableParser;
 import edu.buffalo.cse562.parsers.SelectParser;
+import edu.buffalo.cse562.table.Column;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
@@ -18,8 +21,11 @@ public class Main {
 
 	static File dataDir = null;
 	static ArrayList<File> sqlFiles;
+public	static HashMap<String, ArrayList<Column>> tables = new HashMap<String, ArrayList<Column>>();
 
 	public static void main(String args[]){
+		//System.out.println(args[2]);
+		args[2]= "E:\\Amit Java\\CSE562_DatabaseSystems\\Sanity_Check_Examples\\Sanity_Check_Examples\\AGG01.SQL";
 		initialize(args);
 
 		for(File sql: sqlFiles){
@@ -58,10 +64,12 @@ public class Main {
 			Statement statement = null;
 			while((statement  = parser.Statement()) != null){
 				if(statement instanceof Select){
-					System.out.println(statement.toString());
+					//System.out.println(statement.toString());
 					SelectParser.parseStatement(statement);
 				}
 				else if(statement instanceof CreateTable){
+					System.out.println(statement.toString());
+					CreateTableParser.parseStatement(statement);					
 				}
 			}
 		}catch(ParseException e){
