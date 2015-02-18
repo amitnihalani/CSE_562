@@ -17,7 +17,7 @@ import net.sf.jsqlparser.statement.select.Select;
 
 public class Main {
 
-	static File dataDir = null;
+	public static File dataDir = null;
 	static ArrayList<File> sqlFiles;
 	public	static HashMap<String, ArrayList<Column>> tables = new HashMap<String, ArrayList<Column>>();
 
@@ -85,7 +85,7 @@ public class Main {
 	//		BufferedReader br = new BufferedReader(fr);
 	//		
 	//		String temp = "";
-	//		try {
+	//		try {from
 	//			while((temp = br.readLine())!=null){
 	//				
 	//			}

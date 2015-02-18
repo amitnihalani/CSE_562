@@ -12,7 +12,7 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 public class CreateTableParser {
 
-	/**
+	/**Create Table Schema and store in a hash map as (TableName, Columns) 
 	 * 
 	 * @param statement
 	 */
