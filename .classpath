@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="E:/Amit Java/CSE562_DatabaseSystems/jars/expression.jar"/>
-	<classpathentry kind="lib" path="E:/Amit Java/CSE562_DatabaseSystems/jars/jsqlparser.jar"/>
+	<classpathentry kind="lib" path="/home/hrishikesh/Projects/DB/workspace/CSE_562/jars/jsqlparser.jar"/>
+	<classpathentry kind="lib" path="/home/hrishikesh/Projects/DB/workspace/CSE_562/jars/expression.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

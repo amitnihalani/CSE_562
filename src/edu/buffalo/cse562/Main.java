@@ -1,10 +1,8 @@
 package edu.buffalo.cse562;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,11 +19,9 @@ public class Main {
 
 	static File dataDir = null;
 	static ArrayList<File> sqlFiles;
-public	static HashMap<String, ArrayList<Column>> tables = new HashMap<String, ArrayList<Column>>();
+	public	static HashMap<String, ArrayList<Column>> tables = new HashMap<String, ArrayList<Column>>();
 
 	public static void main(String args[]){
-		//System.out.println(args[2]);
-		args[2]= "E:\\Amit Java\\CSE562_DatabaseSystems\\Sanity_Check_Examples\\Sanity_Check_Examples\\AGG01.SQL";
 		initialize(args);
 
 		for(File sql: sqlFiles){
@@ -63,42 +59,41 @@ public	static HashMap<String, ArrayList<Column>> tables = new HashMap<String, Ar
 			CCJSqlParser parser = new CCJSqlParser(inputFile);
 			Statement statement = null;
 			while((statement  = parser.Statement()) != null){
+				System.out.println(statement.toString());
 				if(statement instanceof Select){
-					//System.out.println(statement.toString());
 					SelectParser.parseStatement(statement);
 				}
 				else if(statement instanceof CreateTable){
-					System.out.println(statement.toString());
-					CreateTableParser.parseStatement(statement);					
+					CreateTableParser.parseStatement(statement);
 				}
 			}
 		}catch(ParseException e){
 			System.out.println("Invalid statement to parse or null. Encountered in parseWithJsql()");
 		}
 	}
-	
-//	/**
-//	 * Takes a statement object for CreateTable and reads the corresponding table from the data directory. 
-//	 * Table is stored as 'table.dat'
-//	 * @param statement - a CreateTable statement
-//	 */
-//	private static void loadTable(Statement statement){
-//		String dataFileName = statement.toString().split(" ")[2].toLowerCase() + ".dat";
-//		dataFileName = dataDir.toString() + File.separator + dataFileName;
-//		File dataFile = new File(dataFileName);
-//		FileReader fr = getFileReader(dataFile);
-//		BufferedReader br = new BufferedReader(fr);
-//		
-//		String temp = "";
-//		try {
-//			while((temp = br.readLine())!=null){
-//				
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			System.out.println("IO Exception encountered in loadTable()");
-//		}
-//	}
+
+	//	/**
+	//	 * Takes a statement object for CreateTable and reads the corresponding table from the data directory. 
+	//	 * Table is stored as 'table.dat'
+	//	 * @param statement - a CreateTable statement
+	//	 */
+	//	private static void loadTable(Statement statement){
+	//		String dataFileName = statement.toString().split(" ")[2].toLowerCase() + ".dat";
+	//		dataFileName = dataDir.toString() + File.separator + dataFileName;
+	//		File dataFile = new File(dataFileName);
+	//		FileReader fr = getFileReader(dataFile);
+	//		BufferedReader br = new BufferedReader(fr);
+	//		
+	//		String temp = "";
+	//		try {
+	//			while((temp = br.readLine())!=null){
+	//				
+	//			}
+	//		} catch (IOException e) {
+	//			// TODO Auto-generated catch block
+	//			System.out.println("IO Exception encountered in loadTable()");
+	//		}
+	//	}
 
 	/**
 	 * Takes String arguments from the console and returns a FileReader object
