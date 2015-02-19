@@ -4,8 +4,8 @@ import java.io.File;
 
 public class OperatorTest {
 
-	public static void execute(File file){
-		Operator oper = new ReadOperator(file);
+	public static void execute(File file, String tableName){
+		Operator oper = new ReadOperator(file, tableName);
 		dump(oper);
 	}
 	
