@@ -4,22 +4,26 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import net.sf.jsqlparser.expression.*;
-import edu.buffalo.cse562.Main;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
+import edu.buffalo.cse562.utility.Utility;
 
 public class ReadOperator implements Operator {
-	
+
 	File file = null;
 	BufferedReader br = null;
 	String tableName;
-	
+
 	ReadOperator(File f, String tableName){
 		this.file = f;
 		this.tableName = tableName;
 		reset();
 	}
-	
+
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
@@ -29,7 +33,7 @@ public class ReadOperator implements Operator {
 		catch(IOException e){
 			System.out.println("IO Exception in ReadOperator.reset()");
 		}
-		
+
 	}
 
 	@Override
@@ -41,24 +45,35 @@ public class ReadOperator implements Operator {
 		if(br == null)
 			return null;
 		String line = "";
-		
+
 		try{
 			line=br.readLine();
 			if(line == null)
 				return null;
 			String cols[] = line.split("\\|");
 			Object[] tuple = new Object[cols.length];
+			ArrayList<String> dataType = Utility.tableSchema.get(tableName);
 			for(int i=0; i<cols.length;i++){
-				switch(Main.tables.get(this.tableName).get(i).getDataType()){
-					case "int": tuple[i] = new LongValue(cols[i]); break;
-					case "decimal": tuple[i] = new DoubleValue(cols[i]); break;
-					case "date": tuple[i] = new DateValue(cols[i]); break;
-					case "char": tuple[i] = new StringValue("'"+cols[i]+"'"); break;
-					case "string": tuple[i] = new StringValue("'"+cols[i]+"'"); break;
-					case "varchar": tuple[i] = new StringValue("'"+cols[i]+"'"); break;			
+				switch(dataType.get(i)){
+				case "int": 
+					tuple[i] = new LongValue(cols[i]); 
+					break;
+				case "decimal": 
+					tuple[i] = new DoubleValue(cols[i]); 
+					break;
+				case "date": 
+					tuple[i] = new DateValue(cols[i]); 
+					break;
+				case "char": 
+					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					break;
+				case "string": 
+					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					break;
+				case "varchar": 
+					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					break;			
 				}
-					
-				System.out.println(tuple[i]+"qwerty");
 			}
 			return tuple;
 		}catch(IOException e){

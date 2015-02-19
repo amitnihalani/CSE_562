@@ -1,22 +1,26 @@
 package edu.buffalo.cse562.operators;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import edu.buffalo.cse562.table.Column;
+import edu.buffalo.cse562.utility.Utility;
 
 public class ProjectOperator implements Operator{
 
-	ArrayList<Column> columns;
 	Operator op;
 	Object[] tuple;
-	ArrayList<SelectExpressionItem> project;
+	ArrayList<SelectExpressionItem> toProject;
+	String tableName;
+	HashMap<String, Integer> schema;
 	
-	ProjectOperator(ArrayList<Column> col, Operator op, ArrayList<SelectExpressionItem> p){
-		this.columns = col;
+	ProjectOperator(Operator op, ArrayList<SelectExpressionItem> p, String table){
+
 		this.op = op;
 		this.tuple = null;
-		this.project = p;
+		this.toProject = p;
+		this.tableName = table;
+		this.schema = Utility.tables.get(table);
 	}
 	
 	@Override
@@ -30,10 +34,11 @@ public class ProjectOperator implements Operator{
 		// TODO Auto-generated method stub
 		Object[] temp = op.readOneTuple();
 		ArrayList<Object> tempList = new ArrayList<Object>();
-		for(Object col: temp){
-			
+		for(SelectExpressionItem e: toProject){
+			int colID = schema.get(e.toString());
+			tempList.add(temp[colID]);
 		}
-		
+		System.out.println(tempList);
 		return tuple;
 	}
 

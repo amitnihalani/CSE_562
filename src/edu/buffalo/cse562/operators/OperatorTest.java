@@ -1,11 +1,14 @@
 package edu.buffalo.cse562.operators;
 
 import java.io.File;
+import java.util.ArrayList;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
 public class OperatorTest {
 
-	public static void execute(File file, String tableName){
+	public static void execute(File file, String tableName, ArrayList<SelectExpressionItem> list){
 		Operator oper = new ReadOperator(file, tableName);
+		oper = new ProjectOperator(oper, list, tableName);
 		dump(oper);
 	}
 	
