@@ -26,7 +26,7 @@ public class SelectParser {
 			String dataFileName = from.toLowerCase() + ".dat";
 			dataFileName = Main.dataDir.toString() + File.separator + dataFileName;
 			System.out.println(dataFileName);
-			OperatorTest.execute(new File(dataFileName));
+			OperatorTest.execute(new File(dataFileName), from);
 		}
 	}
 }
