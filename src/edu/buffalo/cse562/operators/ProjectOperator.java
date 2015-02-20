@@ -33,12 +33,14 @@ public class ProjectOperator implements Operator{
 	public Object[] readOneTuple() {
 		// TODO Auto-generated method stub
 		Object[] temp = op.readOneTuple();
+		if(temp == null)
+			return null;
 		ArrayList<Object> tempList = new ArrayList<Object>();
 		for(SelectExpressionItem e: toProject){
 			int colID = schema.get(e.toString());
 			tempList.add(temp[colID]);
 		}
-		System.out.println(tempList);
+		tuple = tempList.toArray();
 		return tuple;
 	}
 

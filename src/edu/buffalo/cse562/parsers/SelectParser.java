@@ -3,6 +3,7 @@ package edu.buffalo.cse562.parsers;
 import java.io.File;
 import java.util.ArrayList;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
@@ -23,12 +24,13 @@ public class SelectParser {
 		
 		if(body instanceof PlainSelect){
 			String from = ((PlainSelect) body).getFromItem().toString();
+			Expression condition= ((PlainSelect) body).getWhere();
 			ArrayList<SelectExpressionItem> list = (ArrayList<SelectExpressionItem>)
 					((PlainSelect) body).getSelectItems();
 			String dataFileName = from.toLowerCase() + ".dat";
 			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
 			
-			OperatorTest.execute(new File(dataFileName), from, list);
+			OperatorTest.execute(new File(dataFileName), from, condition,list);
 		}
 	}
 }
