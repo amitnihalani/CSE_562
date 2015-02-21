@@ -5,13 +5,19 @@ import java.util.ArrayList;
 
 import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
 public class OperatorTest {
 
-	public static void execute(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list){
+	public static void execute(File file, String tableName, Expression condition,
+			ArrayList<SelectExpressionItem> list, ArrayList<Join> joins){
 		Operator oper = new ReadOperator(file, tableName);
-		oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
+		if(joins != null)
+//			oper = new JoinOperator(oper, joins, tableName);
+			oper = new CrossProductOperator(oper, joins, tableName);
+		if(condition != null)
+			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
 		oper = new ProjectOperator(oper, list, tableName);
 		dump(oper);
 	}

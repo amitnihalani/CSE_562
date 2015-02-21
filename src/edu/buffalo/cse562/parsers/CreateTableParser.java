@@ -18,7 +18,6 @@ public class CreateTableParser {
 	public static void parseStatement(Statement statement){
 		String tableName = ((CreateTable)statement).getTable().getName();
 		HashMap<String, Integer> cols = new HashMap<String, Integer>();
-		Utility.tableSchema = new HashMap<String,ArrayList<String>>();
 		ArrayList<String> dataType = new ArrayList<String>();
 		
 		if(Utility.tables != null && !Utility.tables.containsKey(tableName)){
@@ -26,7 +25,7 @@ public class CreateTableParser {
 			List<ColumnDefinition> list = ((CreateTable)statement).getColumnDefinitions();
 			for(int i=0; i<list.size();i++){
 				ColumnDefinition temp = list.get(i);
-				cols.put(temp.getColumnName(), i);
+				cols.put(tableName+"."+temp.getColumnName(), i);
 				dataType.add(temp.getColDataType().toString());
 			}
 			Utility.tables.put(tableName, cols);
