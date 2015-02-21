@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
@@ -17,6 +18,17 @@ public class OperatorTest {
 			oper = new CrossProductOperator(oper, joins, tableName);
 		if(condition != null)
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
+		
+		if(list.get(0).getExpression() instanceof Function)
+		{
+			Function f=(Function) list.get(0).getExpression();
+			System.out.println(f.getName());
+			System.out.println("All columns"+ f.isAllColumns());
+			if(f.isAllColumns())
+				oper=new AggregateOperator(oper, Utility.tables.get(tableName), f.getName());
+			else
+			oper=new AggregateOperator(oper, Utility.tables.get(tableName), (Expression) f.getParameters().getExpressions().get(0),f.getName());
+		}
 		oper = new ProjectOperator(oper, list, tableName);
 		dump(oper);
 	}

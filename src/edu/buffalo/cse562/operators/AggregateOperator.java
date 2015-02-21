@@ -52,8 +52,13 @@ public class AggregateOperator implements Operator {
 			l=computeMax();
 		else if(fname.equals("COUNT"))
 			l=computeCount();
-		Object[] obj=new Object[1];
-		obj[0]=l;
+		Object[] obj=null;
+		if(l != null)
+		{
+			obj=new Object[1];
+			obj[0]=l;
+		}
+		
 		return obj;
 	}
 

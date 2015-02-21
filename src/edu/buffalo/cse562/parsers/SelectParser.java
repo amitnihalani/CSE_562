@@ -2,8 +2,6 @@ package edu.buffalo.cse562.parsers;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Join;

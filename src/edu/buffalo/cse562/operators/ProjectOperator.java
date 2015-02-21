@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
@@ -42,6 +43,8 @@ public class ProjectOperator implements Operator{
 			return null;
 		for(SelectExpressionItem e: toProject){
 			try {
+				if(e.getExpression() instanceof Function)
+					return temp;
 				tuple[index] = eval.eval(e.getExpression());
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
