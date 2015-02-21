@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -25,6 +26,7 @@ public class SelectParser {
 		SelectBody body = ((Select) statement).getSelectBody();
 		
 		if(body instanceof PlainSelect){
+<<<<<<< HEAD
 		/*	String from = returnFromItem(body);
 			Expression condition= returnConditionItem(body);
 			ArrayList<SelectExpressionItem> list = (ArrayList<SelectExpressionItem>)
@@ -38,6 +40,16 @@ public class SelectParser {
 					(String)parameters.get(1), 
 					(Expression)parameters.get(2),
 					(ArrayList<SelectExpressionItem>)parameters.get(3));
+=======
+			String from = ((PlainSelect) body).getFromItem().toString();
+			ArrayList<Join> joins = (ArrayList<Join>) ((PlainSelect) body).getJoins();
+			Expression condition= ((PlainSelect) body).getWhere();
+			ArrayList<SelectExpressionItem> list = (ArrayList<SelectExpressionItem>)
+					((PlainSelect) body).getSelectItems();
+			String dataFileName = from.toLowerCase() + ".dat";
+			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
+			OperatorTest.execute(new File(dataFileName), from, condition, list, joins);
+>>>>>>> origin/master
 		}
 		else if(body instanceof Union){
 			ArrayList<PlainSelect> plainSelects = new ArrayList(((Union) body).getPlainSelects());

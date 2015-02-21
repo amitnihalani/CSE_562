@@ -9,6 +9,6 @@ public class Utility {
 	public static File dataDir = null;
 	public static ArrayList<File> sqlFiles;
 	public static HashMap<String, HashMap<String, Integer>> tables = null;
-	public static HashMap<String, ArrayList<String>> tableSchema;
+	public static HashMap<String, ArrayList<String>> tableSchema = null;
 	
 }

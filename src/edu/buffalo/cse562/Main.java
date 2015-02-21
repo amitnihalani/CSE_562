@@ -31,6 +31,7 @@ public class Main {
 	 * @param args - the arguments that are passed to the program.
 	 */
 	private static void initialize(String args[]) {
+		Utility.tableSchema = new HashMap<String,ArrayList<String>>();
 		Utility.dataDir = new File(args[1]);
 		Utility.sqlFiles = new ArrayList<File>();
 

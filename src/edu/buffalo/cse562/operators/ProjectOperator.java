@@ -1,9 +1,11 @@
 package edu.buffalo.cse562.operators;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
 
 public class ProjectOperator implements Operator{
@@ -17,7 +19,7 @@ public class ProjectOperator implements Operator{
 	ProjectOperator(Operator op, ArrayList<SelectExpressionItem> p, String table){
 
 		this.op = op;
-		this.tuple = null;
+		this.tuple = new Object[p.size()];
 		this.toProject = p;
 		this.tableName = table;
 		this.schema = Utility.tables.get(table);
@@ -33,14 +35,20 @@ public class ProjectOperator implements Operator{
 	public Object[] readOneTuple() {
 		// TODO Auto-generated method stub
 		Object[] temp = op.readOneTuple();
+		Evaluator eval = new Evaluator(schema,temp);
+		
+		int index = 0;
 		if(temp == null)
 			return null;
-		ArrayList<Object> tempList = new ArrayList<Object>();
 		for(SelectExpressionItem e: toProject){
-			int colID = schema.get(e.toString());
-			tempList.add(temp[colID]);
+			try {
+				tuple[index] = eval.eval(e.getExpression());
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			index++;
 		}
-		tuple = tempList.toArray();
 		return tuple;
 	}
 
