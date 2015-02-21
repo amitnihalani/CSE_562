@@ -2,7 +2,6 @@ package edu.buffalo.cse562.operators;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import edu.buffalo.cse562.utility.Utility;
@@ -12,15 +11,9 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
 public class OperatorTest {
 
-<<<<<<< HEAD
-	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list){
-=======
-	public static void execute(File file, String tableName, Expression condition,
-			ArrayList<SelectExpressionItem> list, ArrayList<Join> joins){
->>>>>>> origin/master
+	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins){
 		Operator oper = new ReadOperator(file, tableName);
 		if(joins != null)
-//			oper = new JoinOperator(oper, joins, tableName);
 			oper = new CrossProductOperator(oper, joins, tableName);
 		if(condition != null)
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
@@ -28,6 +21,7 @@ public class OperatorTest {
 		dump(oper);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void executeUnion(ArrayList<ArrayList<Object>> selectStatementsParameters){
 		ArrayList<Operator> oper = new ArrayList<Operator>();
 		

@@ -26,30 +26,12 @@ public class SelectParser {
 		SelectBody body = ((Select) statement).getSelectBody();
 		
 		if(body instanceof PlainSelect){
-<<<<<<< HEAD
-		/*	String from = returnFromItem(body);
-			Expression condition= returnConditionItem(body);
-			ArrayList<SelectExpressionItem> list = (ArrayList<SelectExpressionItem>)
-					((PlainSelect) body).getSelectItems();
-			String dataFileName = from.toLowerCase() + ".dat";
-			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName; */
-			ArrayList<Object> parameters = getParameters(body);
-			
-			//OperatorTest.executeSelect(new File(dataFileName), from, condition,list);
+			ArrayList<Object> parameters = getParameters((PlainSelect)body);
 			OperatorTest.executeSelect(new File((String)parameters.get(0)), 
 					(String)parameters.get(1), 
 					(Expression)parameters.get(2),
-					(ArrayList<SelectExpressionItem>)parameters.get(3));
-=======
-			String from = ((PlainSelect) body).getFromItem().toString();
-			ArrayList<Join> joins = (ArrayList<Join>) ((PlainSelect) body).getJoins();
-			Expression condition= ((PlainSelect) body).getWhere();
-			ArrayList<SelectExpressionItem> list = (ArrayList<SelectExpressionItem>)
-					((PlainSelect) body).getSelectItems();
-			String dataFileName = from.toLowerCase() + ".dat";
-			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
-			OperatorTest.execute(new File(dataFileName), from, condition, list, joins);
->>>>>>> origin/master
+					(ArrayList<SelectExpressionItem>)parameters.get(3),
+					(ArrayList<Join>) parameters.get(4));
 		}
 		else if(body instanceof Union){
 			ArrayList<PlainSelect> plainSelects = new ArrayList(((Union) body).getPlainSelects());
@@ -72,13 +54,15 @@ public class SelectParser {
 	
 	
 	
-	public static ArrayList<Object> getParameters(SelectBody body){
-		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName
+	@SuppressWarnings("unchecked")
+	public static ArrayList<Object> getParameters(PlainSelect body){
+		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins
 		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(Utility.dataDir.toString() + File.separator + ((PlainSelect) body).getFromItem().toString() + ".dat");
-		parameters.add(((PlainSelect) body).getFromItem().toString());
-		parameters.add(((PlainSelect) body).getWhere());
-		parameters.add((ArrayList<SelectExpressionItem>)((PlainSelect) body).getSelectItems());		
+		parameters.add(Utility.dataDir.toString() + File.separator + (body).getFromItem().toString() + ".dat");
+		parameters.add((body).getFromItem().toString());
+		parameters.add((body).getWhere());
+		parameters.add((ArrayList<SelectExpressionItem>)(body).getSelectItems());
+		parameters.add(body.getJoins());
 		return parameters;
 	}
 	
