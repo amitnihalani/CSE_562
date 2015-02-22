@@ -55,4 +55,10 @@ public class ProjectOperator implements Operator{
 		return tuple;
 	}
 
+	@Override
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return tableName;
+	}
+
 }

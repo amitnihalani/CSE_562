@@ -14,8 +14,10 @@ public class OperatorTest {
 
 	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins){
 		Operator oper = new ReadOperator(file, tableName);
-		if(joins != null)
+		if(joins != null){
 			oper = new CrossProductOperator(oper, joins, tableName);
+			tableName = oper.getTableName();
+		}
 		if(condition != null)
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
 		
@@ -29,6 +31,7 @@ public class OperatorTest {
 			else
 			oper=new AggregateOperator(oper, Utility.tables.get(tableName), (Expression) f.getParameters().getExpressions().get(0),f.getName());
 		}
+		
 		oper = new ProjectOperator(oper, list, tableName);
 		dump(oper);
 	}

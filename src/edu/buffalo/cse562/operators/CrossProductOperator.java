@@ -11,12 +11,15 @@ public class CrossProductOperator implements Operator{
 
 	ArrayList<ReadOperator> readOps;
 	ArrayList<String> tableNames;
+	static ArrayList<Object[]> allTuples;
+	static int counter = 0;
+	String tableName;
 
 	public CrossProductOperator(Operator oper, ArrayList<Join> joins,
 			String tableName) {
 		readOps = new ArrayList<ReadOperator>();
 		tableNames = new ArrayList<String>();
-
+		allTuples = new ArrayList<Object[]>();
 		readOps.add((ReadOperator)oper);
 		tableNames.add(tableName);
 		for(Join table: joins){
@@ -29,7 +32,7 @@ public class CrossProductOperator implements Operator{
 				System.out.println("Null pointer exception in JoinOperator()");
 			}
 		}
-
+		initializeAllTuple();
 	}
 
 	@Override
@@ -39,6 +42,23 @@ public class CrossProductOperator implements Operator{
 
 	@Override
 	public Object[] readOneTuple() {
+		Object[] temp = null;
+		if(counter < allTuples.size()){
+			temp = allTuples.get(counter);
+			counter++;
+		}
+		return temp;
+	}
+
+	void updateSchema(HashMap<String, Integer> newSchema, HashMap<String, Integer> tempSchema,
+			int size, int index){
+		tempSchema = Utility.tables.get(tableNames.get(index));
+		for(String col: tempSchema.keySet()){
+			newSchema.put(col, tempSchema.get(col)+size);
+		}
+	}
+
+	void initializeAllTuple(){
 		HashMap<String, Integer> newSchema = new HashMap<String, Integer>();
 		HashMap<String, Integer> tempSchema = new HashMap<String, Integer>();
 		Object[] temp1 = readOps.get(0).readOneTuple();
@@ -49,12 +69,12 @@ public class CrossProductOperator implements Operator{
 		int size2 = Utility.tables.get(tableNames.get(1)).size();
 		int size3 = 0;
 		int size4 = 0;
-		
+
 		updateSchema(newSchema, tempSchema, 0, 0);
 		updateSchema(newSchema, tempSchema, size1, 1);
-		
+
 		String newTableName = tableNames.get(0)+","+tableNames.get(1);
-		
+
 		if(readOps.size() == 3){
 			temp3 = readOps.get(2).readOneTuple();
 			size3 = Utility.tables.get(tableNames.get(2)).size();
@@ -67,55 +87,65 @@ public class CrossProductOperator implements Operator{
 			updateSchema(newSchema, tempSchema, size3+size2+size1, 3);
 			newTableName += ","+tableNames.get(3);
 		}
-	
+
 		for(String col: newSchema.keySet()){
 			System.out.println(col+" "+newSchema.get(col));
 		}
-		
+		this.tableName = newTableName;
 		Utility.tables.put(newTableName, newSchema);
-		
+
 		int size = size1+size2+size3+size4;
-		Object[] toReturn = new Object[size];
-		
 		while(temp1 != null){
+			Object[] toReturn1 = new Object[size1];
 			for(int i = 0; i < size1; i++){
-				toReturn[i] = temp1[i];
+				toReturn1[i] = temp1[i];
 			}
 			while(temp2 != null){
-				for(int i = size1, j=0; i < size1+size2; i++){
-					toReturn[i] = temp2[j];
-					j++;
+				Object[] toReturn2 = new Object[size2];
+				for(int j=0; j < size2; j++){
+					toReturn2[j] = temp2[j];
 				}
-				
+//				Object[] x = new Object[size];
+//				x[0] = toReturn1[0];
+//				x[1] = toReturn1[1];
+//				x[2] = toReturn2[0];
+//				x[3] = toReturn2[1];
+//				allTuples.add(x);
 				while(temp3 != null){
-					for(int i = size1+size2, j=0; i < size1+size2+size3; i++){
-						toReturn[i] = temp3[j];
-						j++;
+					Object[] toReturn3 = new Object[size3];
+					for(int j=0; j < size3; j++){
+						toReturn3[j] = temp3[j];
 					}
-					System.out.println(toReturn[0]+" "+toReturn[1]+" "+toReturn[2]+" "+toReturn[3]+" "+toReturn[4]+" "+toReturn[5]);
+					Object[] x = new Object[size];
+					x[0] = toReturn1[0];
+					x[1] = toReturn1[1];
+					x[2] = toReturn2[0];
+					x[3] = toReturn2[1];
+					x[4] = toReturn3[0];
+					x[5] = toReturn3[1];
+					allTuples.add(x);
+					System.out.println(toReturn1[0]+" "+toReturn1[1]+" "+toReturn2[0]+" "+toReturn2[1]+" "+toReturn3[0]+" "+toReturn3[1]);
 					while(temp4 != null){
 						temp4 = readOps.get(3).readOneTuple();
 					}//end of 4
 					temp3 = readOps.get(2).readOneTuple();
 				}//end of 3
-				readOps.get(2).reset();
-				temp3 = readOps.get(2).readOneTuple();
+				if(readOps.size() == 3)
+				{
+					readOps.get(2).reset();
+					temp3 = readOps.get(2).readOneTuple();
+				}
 				temp2 = readOps.get(1).readOneTuple();
 			}//end of 2
 			readOps.get(1).reset();
 			temp2 = readOps.get(1).readOneTuple();
 			temp1 = readOps.get(0).readOneTuple();
 		}// end of 1
-		return null;
 	}
 
-	void updateSchema(HashMap<String, Integer> newSchema, HashMap<String, Integer> tempSchema,
-			int size, int index){
-		tempSchema = Utility.tables.get(tableNames.get(index));
-		for(String col: tempSchema.keySet()){
-			newSchema.put(col, tempSchema.get(col)+size);
-		}
+	@Override
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return this.tableName;
 	}
-	
-
 }

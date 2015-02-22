@@ -3,14 +3,11 @@ package edu.buffalo.cse562.operators;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import javax.print.DocFlavor.INPUT_STREAM;
-
 import edu.buffalo.cse562.evaluate.Evaluator;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.LeafValue.InvalidLeaf;
 
 public class AggregateOperator implements Operator {
 
@@ -262,5 +259,11 @@ public class AggregateOperator implements Operator {
 
 		return new LongValue(count);
 
+	}
+
+	@Override
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

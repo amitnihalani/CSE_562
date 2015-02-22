@@ -2,7 +2,6 @@ package edu.buffalo.cse562.operators;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.jsqlparser.statement.select.Join;
@@ -91,6 +90,12 @@ public class JoinOperator implements Operator {
 //		}
 		return null;
 	}//end of function
+
+	@Override
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	/**
 	 * Function to get common columns of two tuples. 

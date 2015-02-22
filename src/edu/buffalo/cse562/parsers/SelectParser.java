@@ -32,7 +32,7 @@ public class SelectParser {
 					(ArrayList<Join>) parameters.get(4));
 		}
 		else if(body instanceof Union){
-			ArrayList<PlainSelect> plainSelects = new ArrayList(((Union) body).getPlainSelects());
+			ArrayList<PlainSelect> plainSelects = new ArrayList<PlainSelect>(((Union) body).getPlainSelects());
 			ArrayList<ArrayList<Object>> selectStatementsParameters = new ArrayList<ArrayList<Object>>(); 
 			
 			for(PlainSelect p : plainSelects){

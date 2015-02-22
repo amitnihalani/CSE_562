@@ -82,4 +82,10 @@ public class ReadOperator implements Operator {
 		return null;
 	}
 
+	@Override
+	public String getTableName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
