@@ -124,8 +124,8 @@ public class AggregateOperator implements Operator {
 		}
 
 		if(flag==1)
-			return new LongValue(l);
-		return new DoubleValue(d);
+			return new LongValue(l.toString());
+		return new DoubleValue(d.toString());
 	}
 
 	public LeafValue computeAvg(Expression expression)
@@ -163,9 +163,13 @@ public class AggregateOperator implements Operator {
 			System.out.println("SQLException in AggregateOperator.computeSum()");
 		}
 
-		if(flag==1)
-			return new DoubleValue(l.doubleValue()/count);
-		return new DoubleValue(d/count);
+		if(flag==1){
+			Double avg = l.doubleValue() / count;
+			return new DoubleValue(avg.toString());
+		}
+		
+		Double avg = d / count;
+		return new DoubleValue(avg.toString());
 	}
 
 	public LeafValue computeMin(Expression expression)
@@ -217,8 +221,8 @@ public class AggregateOperator implements Operator {
 		}
 
 		if(flag==1)
-			return new LongValue(lmin);
-		return new DoubleValue(dmin);
+			return new LongValue(lmin.toString());
+		return new DoubleValue(dmin.toString());
 	}
 	public LeafValue computeMax(Expression expression)
 	{
@@ -269,15 +273,15 @@ public class AggregateOperator implements Operator {
 		}
 
 		if(flag==1)
-			return new LongValue(lmax);
-		return new DoubleValue(dmax);
+			return new LongValue(lmax.toString());
+		return new DoubleValue(dmax.toString());
 	}
 
 	public LeafValue computeCount()
 	{
 		Object[] tuple=null;
 		tuple=input.readOneTuple();
-		int count=0;
+		Integer count=0;
 		if(tuple == null)
 			return null;
 
@@ -288,9 +292,7 @@ public class AggregateOperator implements Operator {
 		}while(tuple!=null);
 
 
-		return new LongValue(count);
-		
-
+		return new LongValue(count.toString());
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import java.util.HashSet;
 import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
@@ -56,7 +55,6 @@ public class OperatorTest {
 			dump(oper);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void executeUnion(ArrayList<ArrayList<Object>> selectStatementsParameters){
 		ArrayList<Operator> oper = new ArrayList<Operator>();
 
