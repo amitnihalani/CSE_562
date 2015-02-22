@@ -23,7 +23,7 @@ public class OperatorTest {
 		Operator oper = new ReadOperator(file, tableName);
 		ArrayList<Function> functions=null;
 		Expression onExpression = null;
-		
+
 		if(joins != null){
 			if(joins.get(0).toString().contains("JOIN")){
 				isJoin = true;
@@ -44,8 +44,6 @@ public class OperatorTest {
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
 		if(!allColumns)
 		{
-
-
 			functions= new ArrayList<Function>();
 
 			for(int i=0; i<list.size(); i++){
@@ -69,6 +67,7 @@ public class OperatorTest {
 		dump(oper);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void executeUnion(ArrayList<ArrayList<Object>> selectStatementsParameters){
 		ArrayList<Operator> oper = new ArrayList<Operator>();
 
@@ -78,14 +77,14 @@ public class OperatorTest {
 				o = new SelectionOperator(o, Utility.tables.get((String)statementParameters.get(1)), (Expression)statementParameters.get(2));
 			}
 
-			//	o = new ProjectOperator(o, (ArrayList<SelectExpressionItem>)statementParameters.get(3), (String)statementParameters.get(1));
+			o = new ProjectOperator(o, (ArrayList<SelectExpressionItem>)statementParameters.get(3), (String)statementParameters.get(1), false);
 			oper.add(o);
 		}
 		dumpUnion(oper);
 	}
 
 	public static void dumpUnion(ArrayList<Operator> oper){
-		HashSet<String> unionTuples = new HashSet<String>();
+		ArrayList<String> unionTuples = new ArrayList<String>();
 		for(Operator op : oper){
 			Object[] row = op.readOneTuple();
 			while(row != null){
@@ -93,13 +92,12 @@ public class OperatorTest {
 				for(Object col: row){
 					tuple += (col.toString()+" | ");
 				}
-				if(!unionTuples.contains(tuple)){
 					unionTuples.add(tuple);
 					System.out.println(tuple);
-				}
 				row = op.readOneTuple();
 			}
 		}
+		System.out.println(unionTuples.size());
 	}
 
 	public static void dump(Operator input){

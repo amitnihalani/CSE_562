@@ -56,7 +56,6 @@ public class Main {
 			CCJSqlParser parser = new CCJSqlParser(inputFile);
 			Statement statement = null;
 			while((statement  = parser.Statement()) != null){
-				System.out.println(statement.toString());
 				if(statement instanceof Select){
 					SelectParser.parseStatement(statement);
 				}
@@ -68,29 +67,6 @@ public class Main {
 			System.out.println("Invalid statement to parse or null. Encountered in parseWithJsql()");
 		}
 	}
-
-	//	/**
-	//	 * Takes a statement object for CreateTable and reads the corresponding table from the data directory. 
-	//	 * Table is stored as 'table.dat'
-	//	 * @param statement - a CreateTable statement
-	//	 */
-	//	private static void loadTable(Statement statement){
-	//		String dataFileName = statement.toString().split(" ")[2].toLowerCase() + ".dat";
-	//		dataFileName = dataDir.toString() + File.separator + dataFileName;
-	//		File dataFile = new File(dataFileName);
-	//		FileReader fr = getFileReader(dataFile);
-	//		BufferedReader br = new BufferedReader(fr);
-	//		
-	//		String temp = "";
-	//		try {from
-	//			while((temp = br.readLine())!=null){
-	//				
-	//			}
-	//		} catch (IOException e) {
-	//			// TODO Auto-generated catch block
-	//			System.out.println("IO Exception encountered in loadTable()");
-	//		}
-	//	}
 
 	/**
 	 * Takes String arguments from the console and returns a FileReader object
