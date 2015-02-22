@@ -62,16 +62,16 @@ public class ReadOperator implements Operator {
 					tuple[i] = new DoubleValue(cols[i]); 
 					break;
 				case "date": 
-					tuple[i] = new DateValue(cols[i]); 
+					tuple[i] = new DateValue(" "+cols[i]+" "); 
 					break;
 				case "char": 
-					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;
 				case "string": 
-					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;
 				case "varchar": 
-					tuple[i] = new StringValue("'"+cols[i]+"'"); 
+					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;			
 				}
 			}

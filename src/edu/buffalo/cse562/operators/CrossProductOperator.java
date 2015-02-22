@@ -88,9 +88,6 @@ public class CrossProductOperator implements Operator{
 			newTableName += ","+tableNames.get(3);
 		}
 
-		for(String col: newSchema.keySet()){
-			System.out.println(col+" "+newSchema.get(col));
-		}
 		this.tableName = newTableName;
 		Utility.tables.put(newTableName, newSchema);
 

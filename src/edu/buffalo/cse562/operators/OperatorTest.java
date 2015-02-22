@@ -4,11 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.utility.Utility;
 
 public class OperatorTest {
 
@@ -26,25 +27,21 @@ public class OperatorTest {
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
 		if(!allColumns)
 		{
-			
-		
+
+
 			functions= new ArrayList<Function>();
-		
-		for(int i=0; i<list.size(); i++){
-			if(list.get(i).getExpression() instanceof Function){
-				functions.add((Function) list.get(i).getExpression());
-				isAggregate = true;
-			}
-			else{
-				if(isAggregate){
-					isGroupBy = true;
+
+			for(int i=0; i<list.size(); i++){
+				if(list.get(i).getExpression() instanceof Function){
+					functions.add((Function) list.get(i).getExpression());
+					isAggregate = true;
+				}
+				else{
+					if(isAggregate){
+						isGroupBy = true;
+					}
 				}
 			}
-		}
-		//		Function f=(Function) list.get(0).getExpression();
-		//		if(f.isAllColumns())
-		//			oper=new AggregateOperator(oper, Utility.tables.get(tableName), f.getName());
-		//		else
 		}
 		if(isAggregate && !isGroupBy)
 			oper=new AggregateOperator(oper, Utility.tables.get(tableName), functions);
@@ -52,7 +49,7 @@ public class OperatorTest {
 			System.out.println("Group");
 		else
 			oper = new ProjectOperator(oper, list, tableName,allColumns);
-			dump(oper);
+		dump(oper);
 	}
 
 	public static void executeUnion(ArrayList<ArrayList<Object>> selectStatementsParameters){
@@ -64,7 +61,7 @@ public class OperatorTest {
 				o = new SelectionOperator(o, Utility.tables.get((String)statementParameters.get(1)), (Expression)statementParameters.get(2));
 			}
 
-		//	o = new ProjectOperator(o, (ArrayList<SelectExpressionItem>)statementParameters.get(3), (String)statementParameters.get(1));
+			//	o = new ProjectOperator(o, (ArrayList<SelectExpressionItem>)statementParameters.get(3), (String)statementParameters.get(1));
 			oper.add(o);
 		}
 		dumpUnion(oper);
@@ -91,17 +88,23 @@ public class OperatorTest {
 	public static void dump(Operator input){
 		if(input instanceof AggregateOperator){
 			Object[] row = input.readOneTuple();
-			for(Object col: row){
-				System.out.print(col.toString()+" | ");
+			int i = 0;
+			for(i=0; i<row.length-1; i++){
+				System.out.print(row[i].toString()+"|");
 			}
+			System.out.print(row[i].toString());
 		}
 		else{
-
 			Object[] row = input.readOneTuple();
 			while(row != null){
-				for(Object col: row){
-					System.out.print(col.toString()+" | ");
+				int i = 0;
+				for(i=0; i<row.length-1; i++){
+					if(row[i] instanceof StringValue)
+						System.out.print(((StringValue)row[i]).getNotExcapedValue() + "|");
+					else
+						System.out.print(row[i]+"|");
 				}
+				System.out.print(row[i].toString());
 				System.out.println();
 				row = input.readOneTuple();
 			}

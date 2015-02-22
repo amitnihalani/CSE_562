@@ -56,7 +56,6 @@ public class Main {
 			CCJSqlParser parser = new CCJSqlParser(inputFile);
 			Statement statement = null;
 			while((statement  = parser.Statement()) != null){
-				System.out.println(statement.toString());
 				if(statement instanceof Select){
 					SelectParser.parseStatement(statement);
 				}
