@@ -105,29 +105,32 @@ public class CrossProductOperator implements Operator{
 				for(int j=0; j < size2; j++){
 					toReturn2[j] = temp2[j];
 				}
-//				Object[] x = new Object[size];
-//				x[0] = toReturn1[0];
-//				x[1] = toReturn1[1];
-//				x[2] = toReturn2[0];
-//				x[3] = toReturn2[1];
-//				allTuples.add(x);
+				if(readOps.size() == 2){
+					Object[] x = createTuple(toReturn1, toReturn2, null, null, size);
+					allTuples.add(x);
+				}
 				while(temp3 != null){
 					Object[] toReturn3 = new Object[size3];
 					for(int j=0; j < size3; j++){
 						toReturn3[j] = temp3[j];
 					}
-					Object[] x = new Object[size];
-					x[0] = toReturn1[0];
-					x[1] = toReturn1[1];
-					x[2] = toReturn2[0];
-					x[3] = toReturn2[1];
-					x[4] = toReturn3[0];
-					x[5] = toReturn3[1];
-					allTuples.add(x);
-					System.out.println(toReturn1[0]+" "+toReturn1[1]+" "+toReturn2[0]+" "+toReturn2[1]+" "+toReturn3[0]+" "+toReturn3[1]);
+					if(readOps.size() == 3){
+						Object[] x = createTuple(toReturn1, toReturn2, toReturn3, null, size);
+						allTuples.add(x);
+					}
 					while(temp4 != null){
+						Object[] toReturn4 = new Object[size4];
+						for(int j=0; j < size4; j++){
+							toReturn4[j] = temp4[j];
+						}
+						Object[] x = createTuple(toReturn1, toReturn2, toReturn3, toReturn4, size);
+						allTuples.add(x);
 						temp4 = readOps.get(3).readOneTuple();
 					}//end of 4
+					if(readOps.size() == 4){
+						readOps.get(3).reset();
+						temp4 = readOps.get(3).readOneTuple();
+					}
 					temp3 = readOps.get(2).readOneTuple();
 				}//end of 3
 				if(readOps.size() == 3)
@@ -147,5 +150,35 @@ public class CrossProductOperator implements Operator{
 	public String getTableName() {
 		// TODO Auto-generated method stub
 		return this.tableName;
+	}
+
+	public Object[] createTuple(Object[] toReturn1, Object[] toReturn2, Object[] toReturn3, Object[] toReturn4, int size){
+		Object[] toReturn = new Object[size];
+		int index = 0;
+		for(int i=0; i<toReturn1.length; i++){
+			toReturn[index] = toReturn1[i];
+			index++;
+		}
+
+		for(int i=0; i<toReturn2.length; i++){
+			toReturn[index] = toReturn2[i];
+			index++;
+		}
+
+		if(toReturn3 != null){
+			for(int i=0; i<toReturn3.length; i++){
+				toReturn[index] = toReturn3[i];
+				index++;
+			}
+		}
+
+		if(toReturn4 != null){
+			for(int i=0; i<toReturn4.length; i++){
+				toReturn[index] = toReturn4[i];
+				index++;
+			}
+		}
+
+		return toReturn;
 	}
 }
