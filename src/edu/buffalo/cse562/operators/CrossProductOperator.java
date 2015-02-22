@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.sf.jsqlparser.statement.select.Join;
 import edu.buffalo.cse562.utility.Utility;
 
 public class CrossProductOperator implements Operator{
@@ -15,15 +14,16 @@ public class CrossProductOperator implements Operator{
 	static int counter = 0;
 	String tableName;
 
-	public CrossProductOperator(Operator oper, ArrayList<Join> joins,
+	public CrossProductOperator(Operator oper, ArrayList<String> joins,
 			String tableName) {
+		counter = 0;
 		readOps = new ArrayList<ReadOperator>();
 		tableNames = new ArrayList<String>();
 		allTuples = new ArrayList<Object[]>();
 		readOps.add((ReadOperator)oper);
 		tableNames.add(tableName);
-		for(Join table: joins){
-			tableNames.add(table.toString());
+		for(String table: joins){
+			tableNames.add(table);
 			String dataFileName = table.toString().toLowerCase() + ".dat";
 			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
 			try{

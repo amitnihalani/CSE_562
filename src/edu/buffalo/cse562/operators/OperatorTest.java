@@ -15,13 +15,30 @@ public class OperatorTest {
 
 	static boolean isAggregate = false;
 	static boolean isGroupBy = false;
+	static boolean isJoin;
 
 	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins, boolean allColumns){
+		isJoin = false;
+		ArrayList<String> joinTables = new ArrayList<String>();
 		Operator oper = new ReadOperator(file, tableName);
 		ArrayList<Function> functions=null;
+		Expression onExpression = null;
+		
 		if(joins != null){
-			oper = new CrossProductOperator(oper, joins, tableName);
+			if(joins.get(0).toString().contains("JOIN")){
+				isJoin = true;
+				joinTables.add(joins.get(0).getRightItem().toString());
+				onExpression = joins.get(0).getOnExpression();
+			}else{
+				for(int i = 0; i<joins.size(); i++){
+					joinTables.add(joins.get(i).toString());
+				}
+			}
+			oper = new CrossProductOperator(oper, joinTables, tableName);
 			tableName = oper.getTableName();
+		}
+		if(onExpression != null){
+			oper = new SelectionOperator(oper, Utility.tables.get(tableName), onExpression);
 		}
 		if(condition != null)
 			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
