@@ -2,8 +2,10 @@ package edu.buffalo.cse562.parsers;
 
 import java.io.File;
 import java.util.ArrayList;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
@@ -22,14 +24,19 @@ public class SelectParser {
 	 */
 	public static void parseStatement(Statement statement){
 		SelectBody body = ((Select) statement).getSelectBody();
+		boolean allColumns=false;
 		
 		if(body instanceof PlainSelect){
 			ArrayList<Object> parameters = getParameters((PlainSelect)body);
+			if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)
+				allColumns=true;
 			OperatorTest.executeSelect(new File((String)parameters.get(0)), 
 					(String)parameters.get(1), 
 					(Expression)parameters.get(2),
 					(ArrayList<SelectExpressionItem>)parameters.get(3),
-					(ArrayList<Join>) parameters.get(4));
+					(ArrayList<Join>) parameters.get(4),
+					allColumns);
+					
 		}
 		else if(body instanceof Union){
 			ArrayList<PlainSelect> plainSelects = new ArrayList<PlainSelect>(((Union) body).getPlainSelects());

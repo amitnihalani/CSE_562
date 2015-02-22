@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
@@ -16,14 +17,16 @@ public class ProjectOperator implements Operator{
 	ArrayList<SelectExpressionItem> toProject;
 	String tableName;
 	HashMap<String, Integer> schema;
+	boolean allColumns;
 	
-	ProjectOperator(Operator op, ArrayList<SelectExpressionItem> p, String table){
+	ProjectOperator(Operator op, ArrayList<SelectExpressionItem> p, String table, boolean allColumns){
 
 		this.op = op;
 		this.tuple = new Object[p.size()];
 		this.toProject = p;
 		this.tableName = table;
 		this.schema = Utility.tables.get(table);
+		this.allColumns=allColumns;
 	}
 	
 	@Override
@@ -41,10 +44,11 @@ public class ProjectOperator implements Operator{
 		int index = 0;
 		if(temp == null)
 			return null;
+		if(allColumns)
+			return temp;
 		for(SelectExpressionItem e: toProject){
 			try {
-				if(e.getExpression() instanceof Function)
-					return temp;
+				
 				tuple[index] = eval.eval(e.getExpression());
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

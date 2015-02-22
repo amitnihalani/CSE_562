@@ -1,11 +1,13 @@
 package edu.buffalo.cse562.operators;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.buffalo.cse562.evaluate.Evaluator;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LongValue;
 
@@ -13,12 +15,12 @@ public class AggregateOperator implements Operator {
 
 	Operator input;
 	HashMap<String, Integer> schema;
-	Expression column;
 	String fname;
+	ArrayList<Function> functions;
+
 	public AggregateOperator(Operator input, HashMap<String, Integer> schema, Expression column, String fname) {
 		this.input=input;
 		this.schema=schema;
-		this.column=column;
 		this.fname=fname;
 	}
 
@@ -27,6 +29,14 @@ public class AggregateOperator implements Operator {
 		this.input=input;
 		this.schema=schema;
 		this.fname=fname;
+	}
+
+	public AggregateOperator(Operator oper, HashMap<String, Integer> hashMap,
+			ArrayList<Function> functions) {
+		// TODO Auto-generated constructor stub
+		this.input = oper;
+		this.schema = hashMap;
+		this.functions = functions;
 	}
 
 	@Override
@@ -39,27 +49,48 @@ public class AggregateOperator implements Operator {
 	public Object[] readOneTuple() {
 		// TODO Auto-generated method stub
 		LeafValue l=null;
-		if(fname.equalsIgnoreCase("SUM"))
-			l=computeSum();
-		else if(fname.equalsIgnoreCase("AVG"))
-			l=computeAvg();
-		else if(fname.equals("MIN"))
-			l=computeMin();
-		else if (fname.equals("MAX"))
-			l=computeMax();
-		else if(fname.equals("COUNT"))
-			l=computeCount();
-		Object[] obj=null;
-		if(l != null)
-		{
-			obj=new Object[1];
-			obj[0]=l;
-		}
+		Object[] obj = new Object[functions.size()];
 		
+		for(int i=0; i<functions.size(); i++){
+			input.reset();
+			String fname = functions.get(i).getName();
+			if(fname.equalsIgnoreCase("SUM")){
+				l = computeSum((Expression)functions.get(i).getParameters().getExpressions().get(0));
+				if(l == null)
+					return null;
+				obj[i] = l;
+			}
+			else if(fname.equalsIgnoreCase("AVG")){
+				l = computeAvg((Expression)functions.get(i).getParameters().getExpressions().get(0));
+				if(l == null)
+					return null;
+				obj[i] = l;
+			}
+			else if(fname.equals("MIN")){
+				l=computeMin((Expression)functions.get(i).getParameters().getExpressions().get(0));
+				if(l == null)
+					return null;
+				obj[i] = l;
+			}
+			else if (fname.equals("MAX")){
+				l=computeMax((Expression)functions.get(i).getParameters().getExpressions().get(0));
+				if(l == null)
+					return null;
+				obj[i] = l;
+			}
+			else if(fname.equals("COUNT")){
+				l=computeCount();
+				if(l == null)
+					return null;
+				obj[i] = l;
+			}
+
+		}
+
 		return obj;
 	}
 
-	public LeafValue computeSum()
+	public LeafValue computeSum(Expression expression)
 	{
 		Object[] tuple=null;
 		tuple=input.readOneTuple();
@@ -73,7 +104,7 @@ public class AggregateOperator implements Operator {
 			do{
 
 				Evaluator eval=new Evaluator(schema, tuple);
-				LeafValue leaf=eval.eval(column);
+				LeafValue leaf=eval.eval(expression);
 
 				if(leaf instanceof DoubleValue)
 				{
@@ -97,7 +128,7 @@ public class AggregateOperator implements Operator {
 		return new DoubleValue(d);
 	}
 
-	public LeafValue computeAvg()
+	public LeafValue computeAvg(Expression expression)
 	{
 		Object[] tuple=null;
 		tuple=input.readOneTuple();
@@ -113,7 +144,7 @@ public class AggregateOperator implements Operator {
 
 				count++;
 				Evaluator eval=new Evaluator(schema, tuple);
-				LeafValue leaf=eval.eval(column);
+				LeafValue leaf=eval.eval(expression);
 
 				if(leaf instanceof DoubleValue)
 				{
@@ -137,7 +168,7 @@ public class AggregateOperator implements Operator {
 		return new DoubleValue(d/count);
 	}
 
-	public LeafValue computeMin()
+	public LeafValue computeMin(Expression expression)
 	{
 		Object[] tuple=null;
 		tuple=input.readOneTuple();
@@ -151,7 +182,7 @@ public class AggregateOperator implements Operator {
 		try {
 
 			Evaluator eval1=new Evaluator(schema, tuple);
-			LeafValue leaf1=eval1.eval(column);
+			LeafValue leaf1=eval1.eval(expression);
 			if(leaf1 instanceof DoubleValue)
 			{
 				dmin=((DoubleValue) leaf1).getValue();
@@ -166,7 +197,7 @@ public class AggregateOperator implements Operator {
 			do{
 
 				Evaluator eval=new Evaluator(schema, tuple);
-				LeafValue leaf=eval.eval(column);
+				LeafValue leaf=eval.eval(expression);
 
 				if(leaf instanceof DoubleValue && ((DoubleValue) leaf).getValue()<dmin)
 				{
@@ -189,7 +220,7 @@ public class AggregateOperator implements Operator {
 			return new LongValue(lmin);
 		return new DoubleValue(dmin);
 	}
-	public LeafValue computeMax()
+	public LeafValue computeMax(Expression expression)
 	{
 		Object[] tuple=null;
 		tuple=input.readOneTuple();
@@ -203,7 +234,7 @@ public class AggregateOperator implements Operator {
 		try {
 
 			Evaluator eval1=new Evaluator(schema, tuple);
-			LeafValue leaf1=eval1.eval(column);
+			LeafValue leaf1=eval1.eval(expression);
 			if(leaf1 instanceof DoubleValue)
 			{
 				dmax=((DoubleValue) leaf1).getValue();
@@ -218,7 +249,7 @@ public class AggregateOperator implements Operator {
 			do{
 
 				Evaluator eval=new Evaluator(schema, tuple);
-				LeafValue leaf=eval.eval(column);
+				LeafValue leaf=eval.eval(expression);
 
 				if(leaf instanceof DoubleValue && ((DoubleValue) leaf).getValue()>dmax)
 				{
@@ -258,6 +289,7 @@ public class AggregateOperator implements Operator {
 
 
 		return new LongValue(count);
+		
 
 	}
 

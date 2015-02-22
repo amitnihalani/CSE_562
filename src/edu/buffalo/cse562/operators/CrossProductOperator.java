@@ -37,7 +37,7 @@ public class CrossProductOperator implements Operator{
 
 	@Override
 	public void reset() {
-
+		counter = 0;
 	}
 
 	@Override
