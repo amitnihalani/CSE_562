@@ -87,9 +87,11 @@ public class OperatorTest {
 			Object[] row = op.readOneTuple();
 			while(row != null){
 				String tuple = "";
-				for(Object col: row){
-					tuple += (col.toString()+" | ");
+				int i = 0;
+				for(i = 0; i<row.length-1; i++){
+					tuple += row[i]+"|";
 				}
+				tuple = tuple+row[i];
 				unionTuples.add(tuple);
 				System.out.println(tuple);
 				row = op.readOneTuple();

@@ -7,14 +7,12 @@ import java.util.HashMap;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.operators.OperatorTest;
 import edu.buffalo.cse562.utility.Utility;
@@ -48,6 +46,7 @@ public class SelectParser {
 			
 			for(PlainSelect p : plainSelects){
 				selectStatementsParameters.add(getParameters(p));
+				SelectParser.populateAliases(p);
 			}
 			OperatorTest.executeUnion(selectStatementsParameters);
 		}
