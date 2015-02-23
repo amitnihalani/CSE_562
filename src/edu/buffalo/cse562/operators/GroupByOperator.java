@@ -55,7 +55,7 @@ public class GroupByOperator implements Operator {
 	public void reset() {
 		// TODO Auto-generated method stub
 		counter = 0;
-		
+
 	}
 
 	/* (non-Javadoc)
@@ -71,7 +71,7 @@ public class GroupByOperator implements Operator {
 		}
 		return temp;
 	} //readOneTuple
-	
+
 	void initialize(){
 		Object[] tuple=  null;
 		tuple=op.readOneTuple();
@@ -107,6 +107,18 @@ public class GroupByOperator implements Operator {
 				if(fname.equalsIgnoreCase("SUM")){
 					l = computeSum(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
 					computedAggValues.add(l);
+				}else if(fname.equalsIgnoreCase("AVG")){
+					l = computeAvg(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
+					computedAggValues.add(l);
+				}else if(fname.equalsIgnoreCase("MIN")){
+					l = computeMin(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
+					computedAggValues.add(l);					
+				}else if(fname.equalsIgnoreCase("MAX")){
+					l = computeMax(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
+					computedAggValues.add(l);					
+				}else if(fname.equalsIgnoreCase("COUNT")){
+					l = computeCount(singleKeyTuples);						
+					computedAggValues.add(l);					
 				}
 			}
 
@@ -128,14 +140,14 @@ public class GroupByOperator implements Operator {
 			}
 			answer.add(temp.toArray());
 		}
-		
+
 		this.tableName = tableName+"-GroupBy";
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
 		int index = 0;
 		for(SelectExpressionItem e: list){
-				schema.put(tableName+"."+e.getExpression().toString(), index);
-				index++;
-			}
+			schema.put(tableName+"."+e.getExpression().toString(), index);
+			index++;
+		}
 		Utility.tables.put(this.tableName, schema);
 	}
 
@@ -164,8 +176,6 @@ public class GroupByOperator implements Operator {
 
 	public LeafValue computeSum(ArrayList<Object[]> tupleList, Expression expression)
 	{
-		//		Object[] tuple=null;
-		//		tuple=input.readOneTuple();
 		Double d=0.0;
 		Long l=0L;
 		int flag=0;
@@ -196,6 +206,129 @@ public class GroupByOperator implements Operator {
 		if(flag==1)
 			return new LongValue(l);
 		return new DoubleValue(d);
+	}
+
+	public LeafValue computeAvg(ArrayList<Object[]> tupleList, Expression expression)
+	{
+		Double d=0.0;
+		Long l=0L;
+		int count=0;
+		int flag=0;
+		for(Object[] tuple : tupleList){
+			if(tuple == null)
+				return null;
+
+			try {				
+				count++;
+				Evaluator eval=new Evaluator(schema, tuple);
+				LeafValue leaf=eval.eval(expression);
+
+				if(leaf instanceof DoubleValue)
+				{
+					d+=((DoubleValue) leaf).getValue();
+					flag=0;
+				}
+				else if(leaf instanceof LongValue)
+				{
+					l+=((LongValue) leaf).getValue();
+					flag=1;
+				}									
+			} catch (SQLException e) {
+				System.out.println("SQLException in AggregateOperator.computeSum()");
+			}
+		}
+
+		if(flag==1){
+			Double avg = l.doubleValue() / count;
+			return new DoubleValue(avg.toString());
+		}
+
+		Double avg = d / count;
+		return new DoubleValue(avg.toString());
+	}
+
+	public LeafValue computeMin(ArrayList<Object[]> tupleList, Expression expression)
+	{	
+		Double dmin= Double.MAX_VALUE;
+		Long lmin=Long.MAX_VALUE;
+		int flag=0;
+		
+
+		for(Object[] tuple : tupleList){
+			if(tuple == null)
+				return null;
+
+			try {				
+//				
+				Evaluator eval=new Evaluator(schema, tuple);
+				LeafValue leaf=eval.eval(expression);
+
+				if(leaf instanceof DoubleValue && ((DoubleValue) leaf).getValue()<dmin)
+				{
+					dmin=((DoubleValue) leaf).getValue();
+					flag=0;
+				}
+				else if(leaf instanceof LongValue && ((LongValue) leaf).getValue()<lmin)
+				{
+					lmin=((LongValue) leaf).getValue();
+					flag=1;
+				}					
+			} catch (SQLException e) {
+				System.out.println("SQLException in AggregateOperator.computeSum()");
+			}
+		}
+
+		if(flag==1)
+			return new LongValue(lmin.toString());
+
+		return new DoubleValue(dmin.toString());
+	}
+
+	public LeafValue computeMax(ArrayList<Object[]> tupleList, Expression expression)
+	{	
+		Double dmax=Double.MIN_VALUE;
+		Long lmax=Long.MIN_VALUE;
+		int flag=0;
+		for(Object[] tuple : tupleList){
+			if(tuple == null)
+				return null;
+
+			try {				
+
+				Evaluator eval=new Evaluator(schema, tuple);
+				LeafValue leaf=eval.eval(expression);
+
+				if(leaf instanceof DoubleValue && ((DoubleValue) leaf).getValue()>dmax)
+				{
+					dmax=((DoubleValue) leaf).getValue();
+					flag=0;
+				}
+				else if(leaf instanceof LongValue && ((LongValue) leaf).getValue()>lmax)
+				{
+					lmax=((LongValue) leaf).getValue();
+					flag=1;
+				}								
+			} catch (SQLException e) {
+				System.out.println("SQLException in AggregateOperator.computeSum()");
+			}
+		}
+
+		if(flag==1)
+			return new LongValue(lmax.toString());
+		return new DoubleValue(dmax.toString());
+	}
+
+	public LeafValue computeCount(ArrayList<Object[]> tupleList)
+	{
+		Integer count=0;
+
+		for(Object[] tuple : tupleList){
+			if(tuple == null)
+				return null;
+
+			count++;			
+		}
+		return new LongValue(count.toString());
 	}
 
 	@Override
