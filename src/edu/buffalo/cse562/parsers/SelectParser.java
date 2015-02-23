@@ -2,6 +2,7 @@ package edu.buffalo.cse562.parsers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
@@ -28,6 +29,7 @@ public class SelectParser {
 		
 		if(body instanceof PlainSelect){
 			ArrayList<Object> parameters = getParameters((PlainSelect)body);
+			SelectParser.populateAliases(body);
 			OperatorTest.executeSelect(new File((String)parameters.get(0)), 
 					(String)parameters.get(1), 
 					(Expression)parameters.get(2),
@@ -80,5 +82,24 @@ public class SelectParser {
        return parameters;
 	}
 	
+	public static void populateAliases(SelectBody body)
+	{
+		ArrayList<SelectExpressionItem> selectItems=(ArrayList<SelectExpressionItem>)((PlainSelect) body).getSelectItems();
+		Utility.alias=new HashMap<String, Expression>();
+		if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)
+		return;	
+		for(SelectExpressionItem s : selectItems)
+		{
+			String alias=s.getAlias();
+			/*if(alias == null)
+			{
+				s.setAlias(s.getExpression().toString());
+				System.out.println(s.getAlias());
+			}*/
+			if(alias!=null)
+			Utility.alias.put(s.getAlias(), s.getExpression());
+		}
+		
+	}
 	
 }

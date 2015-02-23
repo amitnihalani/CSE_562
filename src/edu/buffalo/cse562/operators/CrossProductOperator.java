@@ -51,8 +51,9 @@ public class CrossProductOperator implements Operator{
 	}
 
 	void updateSchema(HashMap<String, Integer> newSchema, HashMap<String, Integer> tempSchema,
-			int size, int index){
+			int size, int index, ArrayList<String> dataType){
 		tempSchema = Utility.tables.get(tableNames.get(index));
+		dataType.addAll(Utility.tableSchema.get(tableNames.get(index)));
 		for(String col: tempSchema.keySet()){
 			newSchema.put(col, tempSchema.get(col)+size);
 		}
@@ -69,28 +70,29 @@ public class CrossProductOperator implements Operator{
 		int size2 = Utility.tables.get(tableNames.get(1)).size();
 		int size3 = 0;
 		int size4 = 0;
+		ArrayList<String> dataType = new ArrayList<String>();
 
-		updateSchema(newSchema, tempSchema, 0, 0);
-		updateSchema(newSchema, tempSchema, size1, 1);
+		updateSchema(newSchema, tempSchema, 0, 0, dataType);
+		updateSchema(newSchema, tempSchema, size1, 1, dataType);
 
 		String newTableName = tableNames.get(0)+","+tableNames.get(1);
 
 		if(readOps.size() == 3){
 			temp3 = readOps.get(2).readOneTuple();
 			size3 = Utility.tables.get(tableNames.get(2)).size();
-			updateSchema(newSchema, tempSchema, size2+size1, 2);
+			updateSchema(newSchema, tempSchema, size2+size1, 2, dataType);
 			newTableName += ","+tableNames.get(2);
 		}
 		if(readOps.size() == 4){
 			temp4 = readOps.get(3).readOneTuple();
 			size4 = Utility.tables.get(tableNames.get(3)).size();
-			updateSchema(newSchema, tempSchema, size3+size2+size1, 3);
+			updateSchema(newSchema, tempSchema, size3+size2+size1, 3, dataType);
 			newTableName += ","+tableNames.get(3);
 		}
 
 		this.tableName = newTableName;
 		Utility.tables.put(newTableName, newSchema);
-
+		Utility.tableSchema.put(newTableName, dataType);
 		int size = size1+size2+size3+size4;
 		while(temp1 != null){
 			Object[] toReturn1 = new Object[size1];

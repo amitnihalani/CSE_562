@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
+import net.sf.jsqlparser.expression.BooleanValue;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -23,6 +24,7 @@ public class GroupByOperator implements Operator {
 
 	public static HashMap<String, ArrayList<Object[]>> groupByTuples = new HashMap<String, ArrayList<Object[]>>();
 	public static HashMap<String, ArrayList<Object>> computedGroupedByValues = new HashMap<String, ArrayList<Object>>();
+	public static HashMap<String, Integer> sch = new HashMap<String, Integer>();
 
 	Operator op;
 	String tableName;
@@ -34,6 +36,7 @@ public class GroupByOperator implements Operator {
 	ArrayList<Function> functions;
 	ArrayList<Object[]> answer;
 	static int counter;
+	static int schIndex = 0;
 
 	public GroupByOperator(Operator oper, String tableName, ArrayList<SelectExpressionItem> list, ArrayList<Function> functions, ArrayList<Expression> grpByColumns, Expression having){
 		this.op = oper;
@@ -44,8 +47,15 @@ public class GroupByOperator implements Operator {
 		this.having = having;
 		this.functions = functions;
 		this.answer = new ArrayList<Object[]>();
-		initialize();
 		counter = 0;
+		sch = new HashMap<String, Integer>();
+		if(Utility.alias.containsKey(grpByColumns.get(0).toString())){
+			sch.put(Utility.alias.get(grpByColumns.get(0).toString()).toString(), schIndex);
+		}else{
+			sch.put(grpByColumns.get(0).toString(), schIndex);
+		}
+
+		initialize();
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +78,28 @@ public class GroupByOperator implements Operator {
 		if(counter < answer.size()){
 			temp = answer.get(counter);
 			counter++;
+			if(having !=null)
+			{
+				Evaluator eval=new Evaluator(Utility.tables.get(tableName), temp);
+				try {
+					BooleanValue b= (BooleanValue)eval.eval(having);
+					if(b.getValue())
+						return temp;
+					else
+					{
+						temp=readOneTuple();
+						if(temp== null)
+						{
+							return null;
+						}
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
+		
 		return temp;
 	} //readOneTuple
 
@@ -104,6 +135,10 @@ public class GroupByOperator implements Operator {
 
 			for(int i=0; i<functions.size();i++){
 				String fname = functions.get(i).getName();
+				if(!sch.containsKey(functions.get(i).toString())){
+					schIndex++;
+					sch.put(functions.get(i).toString(), schIndex);
+				}
 				if(fname.equalsIgnoreCase("SUM")){
 					l = computeSum(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
 					computedAggValues.add(l);
@@ -130,6 +165,8 @@ public class GroupByOperator implements Operator {
 
 		}
 
+
+		
 		ArrayList<Object> temp = null;
 		for(Object key : computedGroupedByValues.keySet()){
 			temp = new ArrayList<Object>();
@@ -140,22 +177,31 @@ public class GroupByOperator implements Operator {
 			}
 			answer.add(temp.toArray());
 		}
-
 		this.tableName = tableName+"-GroupBy";
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
 		int index = 0;
 		for(SelectExpressionItem e: list){
-			schema.put(tableName+"."+e.getExpression().toString(), index);
-			index++;
+			schema.put(tableName+"."+e.getExpression().toString(), sch.get(e.getExpression().toString()));
 		}
 		Utility.tables.put(this.tableName, schema);
+		
 	}
 
 
 	private Object getValue(String s) {
 		// TODO Auto-generated method stub
 		String col = grpByColumns.get(0).toString();
-		int index = Utility.tables.get(tableName).get(tableName+"."+col);
+		int index=0;
+		if(Utility.alias.containsKey(col))
+		{
+			index=Utility.tables.get(tableName).get(tableName+"."+Utility.alias.get(col).toString());
+		}
+		else{
+			if(col.contains("."))
+				index = Utility.tables.get(tableName).get(col);
+			else
+				index = Utility.tables.get(tableName).get(tableName+"."+col);
+		}
 		ArrayList<String> dataType = Utility.tableSchema.get(tableName);
 		switch(dataType.get(index)){
 		case "int": 
@@ -176,6 +222,8 @@ public class GroupByOperator implements Operator {
 
 	public LeafValue computeSum(ArrayList<Object[]> tupleList, Expression expression)
 	{
+		//		Object[] tuple=null;
+		//		tuple=input.readOneTuple();
 		Double d=0.0;
 		Long l=0L;
 		int flag=0;
