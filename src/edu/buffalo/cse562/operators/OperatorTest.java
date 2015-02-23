@@ -2,13 +2,10 @@ package edu.buffalo.cse562.operators;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.schema.Column;		 
-import net.sf.jsqlparser.statement.select.AllColumns;	
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;

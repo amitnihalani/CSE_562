@@ -5,14 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.Union;
 import edu.buffalo.cse562.operators.OperatorTest;
 import edu.buffalo.cse562.utility.Utility;
@@ -63,7 +64,6 @@ public class SelectParser {
 	@SuppressWarnings("unchecked")
 	public static ArrayList<Object> getParameters(PlainSelect body){
 		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins, GroupByColumnReference, Having, allColumns
-		boolean allColumns=false;
 		
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(Utility.dataDir.toString() + File.separator + (body).getFromItem().toString() + ".dat");
@@ -78,12 +78,13 @@ public class SelectParser {
 				parameters.add(true);
        else
 				parameters.add(false);
-		
+       
        return parameters;
 	}
 	
 	public static void populateAliases(SelectBody body)
 	{
+		@SuppressWarnings("unchecked")
 		ArrayList<SelectExpressionItem> selectItems=(ArrayList<SelectExpressionItem>)((PlainSelect) body).getSelectItems();
 		Utility.alias=new HashMap<String, Expression>();
 		if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)

@@ -22,9 +22,9 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
 public class GroupByOperator implements Operator {
 
-	public static HashMap<String, ArrayList<Object[]>> groupByTuples = new HashMap<String, ArrayList<Object[]>>();
-	public static HashMap<String, ArrayList<Object>> computedGroupedByValues = new HashMap<String, ArrayList<Object>>();
-	public static HashMap<String, Integer> sch = new HashMap<String, Integer>();
+	public  HashMap<String, ArrayList<Object[]>> groupByTuples;
+	public  HashMap<String, ArrayList<Object>> computedGroupedByValues;
+	public  HashMap<String, Integer> sch = new HashMap<String, Integer>();
 
 	Operator op;
 	String tableName;
@@ -39,6 +39,8 @@ public class GroupByOperator implements Operator {
 	static int schIndex = 0;
 
 	public GroupByOperator(Operator oper, String tableName, ArrayList<SelectExpressionItem> list, ArrayList<Function> functions, ArrayList<Expression> grpByColumns, Expression having){
+		this.groupByTuples = new HashMap<String, ArrayList<Object[]>>();
+		this.computedGroupedByValues = new HashMap<String, ArrayList<Object>>();
 		this.op = oper;
 		this.tableName = tableName;
 		this.schema = Utility.tables.get(tableName);
@@ -48,12 +50,17 @@ public class GroupByOperator implements Operator {
 		this.functions = functions;
 		this.answer = new ArrayList<Object[]>();
 		counter = 0;
+		schIndex = 0;
 		sch = new HashMap<String, Integer>();
-		if(Utility.alias.containsKey(grpByColumns.get(0).toString())){
-			sch.put(Utility.alias.get(grpByColumns.get(0).toString()).toString(), schIndex);
-		}else{
-			sch.put(grpByColumns.get(0).toString(), schIndex);
+		while(schIndex < grpByColumns.size()){
+			if(Utility.alias.containsKey(grpByColumns.get(schIndex).toString())){
+				sch.put(Utility.alias.get(grpByColumns.get(schIndex).toString()).toString(), schIndex);
+			}else{
+				sch.put(grpByColumns.get(schIndex).toString(), schIndex);
+			}
+			schIndex++;
 		}
+		
 
 		initialize();
 	}
@@ -109,7 +116,10 @@ public class GroupByOperator implements Operator {
 		try {
 			while(tuple != null){
 				Evaluator eval= new Evaluator(schema,tuple);		
-				groupByKey = eval.eval(grpByColumns.get(0)).toString();			
+				groupByKey = eval.eval(grpByColumns.get(0)).toString();
+				for(int i = 1; i<grpByColumns.size(); i++){
+					groupByKey += ","+eval.eval(grpByColumns.get(i)).toString();
+				}
 				if(!groupByTuples.containsKey(groupByKey)){
 					ArrayList<Object[]> tupleArray = new ArrayList<Object[]>();
 					tupleArray.add(tuple);
@@ -136,8 +146,8 @@ public class GroupByOperator implements Operator {
 			for(int i=0; i<functions.size();i++){
 				String fname = functions.get(i).getName();
 				if(!sch.containsKey(functions.get(i).toString())){
-					schIndex++;
 					sch.put(functions.get(i).toString(), schIndex);
+					schIndex++;
 				}
 				if(fname.equalsIgnoreCase("SUM")){
 					l = computeSum(singleKeyTuples, (Expression)functions.get(i).getParameters().getExpressions().get(0));						
@@ -170,7 +180,10 @@ public class GroupByOperator implements Operator {
 		ArrayList<Object> temp = null;
 		for(Object key : computedGroupedByValues.keySet()){
 			temp = new ArrayList<Object>();
-			temp.add(getValue(key.toString()));
+			String[] k = key.toString().split(",");
+			for(int i = 0; i<k.length; i++){
+				temp.add(getValue(k[i],i));
+			}
 			ArrayList<Object> obj=computedGroupedByValues.get(key);
 			for(Object o : obj){
 				temp.add(o);
@@ -179,7 +192,6 @@ public class GroupByOperator implements Operator {
 		}
 		this.tableName = tableName+"-GroupBy";
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
-		int index = 0;
 		for(SelectExpressionItem e: list){
 			schema.put(tableName+"."+e.getExpression().toString(), sch.get(e.getExpression().toString()));
 		}
@@ -188,9 +200,9 @@ public class GroupByOperator implements Operator {
 	}
 
 
-	private Object getValue(String s) {
+	private Object getValue(String s, int i) {
 		// TODO Auto-generated method stub
-		String col = grpByColumns.get(0).toString();
+		String col = grpByColumns.get(i).toString();
 		int index=0;
 		if(Utility.alias.containsKey(col))
 		{
@@ -199,8 +211,19 @@ public class GroupByOperator implements Operator {
 		else{
 			if(col.contains("."))
 				index = Utility.tables.get(tableName).get(col);
-			else
-				index = Utility.tables.get(tableName).get(tableName+"."+col);
+			else{
+				if(tableName.contains(",")){
+					for(String key: schema.keySet()){
+						String x = key.substring(key.indexOf(".") + 1, key.length());
+						if(x.equals(col)){
+							index = schema.get(key);
+						}
+					}
+				}else{
+					index = Utility.tables.get(tableName).get(tableName+"."+col);
+				}
+			}
+				
 		}
 		ArrayList<String> dataType = Utility.tableSchema.get(tableName);
 		switch(dataType.get(index)){
@@ -252,8 +275,8 @@ public class GroupByOperator implements Operator {
 		}
 
 		if(flag==1)
-			return new LongValue(l);
-		return new DoubleValue(d);
+			return new LongValue(l.toString());
+		return new DoubleValue(d.toString());
 	}
 
 	public LeafValue computeAvg(ArrayList<Object[]> tupleList, Expression expression)
