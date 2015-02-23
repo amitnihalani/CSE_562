@@ -7,6 +7,7 @@ import java.util.HashMap;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
@@ -55,8 +56,7 @@ public class ProjectOperator implements Operator{
 				}else
 					tuple[index] = eval.eval(e.getExpression());
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				System.out.println("Exception in ProjectOperator.readOneTuple()");
 			}
 			index++;
 		}

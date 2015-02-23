@@ -9,6 +9,7 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -38,7 +39,8 @@ public class SelectParser {
 					(ArrayList<Join>) parameters.get(4),					
 					(ArrayList<Expression>)parameters.get(5),
 					(Expression)parameters.get(6),
-					(boolean) parameters.get(7));
+					(boolean) parameters.get(7),
+					(Limit)parameters.get(8));
 		}
 		else if(body instanceof Union){
 			ArrayList<PlainSelect> plainSelects = new ArrayList<PlainSelect>(((Union) body).getPlainSelects());
@@ -63,7 +65,8 @@ public class SelectParser {
 	
 	@SuppressWarnings("unchecked")
 	public static ArrayList<Object> getParameters(PlainSelect body){
-		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins, GroupByColumnReference, Having, allColumns
+		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins, GroupByColumnReference, Having, allColumns,Limit
+		boolean allColumns=false;
 		
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(Utility.dataDir.toString() + File.separator + (body).getFromItem().toString() + ".dat");
@@ -72,13 +75,14 @@ public class SelectParser {
 		parameters.add((ArrayList<SelectExpressionItem>)(body).getSelectItems());
 		parameters.add(body.getJoins());
 		parameters.add(body.getGroupByColumnReferences());
-		parameters.add(body.getHaving());	  
+		parameters.add(body.getHaving());
 
        if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)
 				parameters.add(true);
        else
 				parameters.add(false);
        
+		parameters.add(body.getLimit());
        return parameters;
 	}
 	
