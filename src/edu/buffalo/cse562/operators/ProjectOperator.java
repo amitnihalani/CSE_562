@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import edu.buffalo.cse562.evaluate.Evaluator;
 import edu.buffalo.cse562.utility.Utility;
@@ -46,8 +49,11 @@ public class ProjectOperator implements Operator{
 			return temp;
 		for(SelectExpressionItem e: toProject){
 			try {
-				
-				tuple[index] = eval.eval(e.getExpression());
+				if(e.getExpression() instanceof Function){
+					Expression x = new Column(null, e.getExpression().toString());
+					tuple[index] = eval.eval(x);
+				}else
+					tuple[index] = eval.eval(e.getExpression());
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

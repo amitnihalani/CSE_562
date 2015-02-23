@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Join;
@@ -23,20 +24,18 @@ public class SelectParser {
 	 * @param statement
 	 */
 	public static void parseStatement(Statement statement){
-		SelectBody body = ((Select) statement).getSelectBody();
-		boolean allColumns=false;
+		SelectBody body = ((Select) statement).getSelectBody();		
 		
 		if(body instanceof PlainSelect){
 			ArrayList<Object> parameters = getParameters((PlainSelect)body);
-			if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)
-				allColumns=true;
 			OperatorTest.executeSelect(new File((String)parameters.get(0)), 
 					(String)parameters.get(1), 
 					(Expression)parameters.get(2),
 					(ArrayList<SelectExpressionItem>)parameters.get(3),
-					(ArrayList<Join>) parameters.get(4),
-					allColumns);
-					
+					(ArrayList<Join>) parameters.get(4),					
+					(ArrayList<Expression>)parameters.get(5),
+					(Expression)parameters.get(6),
+					(boolean) parameters.get(7));
 		}
 		else if(body instanceof Union){
 			ArrayList<PlainSelect> plainSelects = new ArrayList<PlainSelect>(((Union) body).getPlainSelects());
@@ -61,14 +60,24 @@ public class SelectParser {
 	
 	@SuppressWarnings("unchecked")
 	public static ArrayList<Object> getParameters(PlainSelect body){
-		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins
+		//list of parameters in the sequence - From Item, Condition Item,  Select Items, DataFileName, Joins, GroupByColumnReference, Having, allColumns
+		boolean allColumns=false;
+		
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(Utility.dataDir.toString() + File.separator + (body).getFromItem().toString() + ".dat");
 		parameters.add((body).getFromItem().toString());
 		parameters.add((body).getWhere());
 		parameters.add((ArrayList<SelectExpressionItem>)(body).getSelectItems());
 		parameters.add(body.getJoins());
-		return parameters;
+		parameters.add(body.getGroupByColumnReferences());
+		parameters.add(body.getHaving());	  
+
+       if(((PlainSelect) body).getSelectItems().get(0) instanceof AllColumns)
+				parameters.add(true);
+       else
+				parameters.add(false);
+		
+       return parameters;
 	}
 	
 	

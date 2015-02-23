@@ -20,7 +20,7 @@ public class Evaluator extends Eval{
 	public LeafValue eval(Column c) throws SQLException {
 		String t = "";
 		int columnID = 0;
-		if(c.getTable().getName() != null)
+		if(c.getTable()!=null && c.getTable().getName() != null)
 			t = c.getTable().getName();
 		else{
 			for(String key: schema.keySet()){

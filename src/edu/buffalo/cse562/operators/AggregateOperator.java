@@ -79,14 +79,14 @@ public class AggregateOperator implements Operator {
 				obj[i] = l;
 			}
 			else if(fname.equals("COUNT")){
-				l=computeCount();
+			l=computeCount();
 				if(l == null)
 					return null;
 				obj[i] = l;
 			}
 
 		}
-
+		
 		return obj;
 	}
 

@@ -12,10 +12,7 @@ import net.sf.jsqlparser.expression.BooleanValue;
 import net.sf.jsqlparser.expression.Expression;
 
 
-/**
- * @author Samved
- *
- */
+
 public class SelectionOperator implements Operator {
 
 	Operator op;
@@ -71,10 +68,10 @@ public class SelectionOperator implements Operator {
 		}
 		return null;
 	}
+
 	@Override
 	public String getTableName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

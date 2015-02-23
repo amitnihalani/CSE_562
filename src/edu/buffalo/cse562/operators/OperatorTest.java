@@ -4,20 +4,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.schema.Column;		 
+import net.sf.jsqlparser.statement.select.AllColumns;	
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import edu.buffalo.cse562.utility.Utility;
 
 public class OperatorTest {
 
 	static boolean isAggregate = false;
 	static boolean isGroupBy = false;
 	static boolean isJoin;
-
-	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins, boolean allColumns){
+		
+	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins, ArrayList<Expression> grpByColumnRef, Expression having, boolean allColumns){
 		isJoin = false;
 		ArrayList<String> joinTables = new ArrayList<String>();
 		Operator oper = new ReadOperator(file, tableName);
@@ -41,48 +43,46 @@ public class OperatorTest {
 			oper = new SelectionOperator(oper, Utility.tables.get(tableName), onExpression);
 		}
 		if(condition != null)
-			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);
+			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);		
 		if(!allColumns)
-		{
+		{		
 			functions= new ArrayList<Function>();
-
+		
 			for(int i=0; i<list.size(); i++){
 				if(list.get(i).getExpression() instanceof Function){
 					functions.add((Function) list.get(i).getExpression());
 					isAggregate = true;
-				}
-				else{
-					if(isAggregate){
-						isGroupBy = true;
-					}
-				}
+				}				
 			}
 		}
-		if(isAggregate && !isGroupBy)
+		
+		if(grpByColumnRef!=null){
+			oper = new GroupByOperator(oper, tableName, list, functions, grpByColumnRef, having);
+			oper = new ProjectOperator(oper, list, oper.getTableName(),allColumns);
+		}
+		else if (isAggregate)
 			oper=new AggregateOperator(oper, Utility.tables.get(tableName), functions);
-		else if(isGroupBy)
-			System.out.println("Group");
 		else
 			oper = new ProjectOperator(oper, list, tableName,allColumns);
 		dump(oper);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static void executeUnion(ArrayList<ArrayList<Object>> selectStatementsParameters){
 		ArrayList<Operator> oper = new ArrayList<Operator>();
-
+		
 		for(ArrayList<Object> statementParameters : selectStatementsParameters){
 			Operator o = new ReadOperator(new File((String)statementParameters.get(0)), (String)statementParameters.get(1));
 			if((Expression)statementParameters.get(2) != null){
 				o = new SelectionOperator(o, Utility.tables.get((String)statementParameters.get(1)), (Expression)statementParameters.get(2));
 			}
-
+			
 			o = new ProjectOperator(o, (ArrayList<SelectExpressionItem>)statementParameters.get(3), (String)statementParameters.get(1), false);
-			oper.add(o);
+		    oper.add(o);
 		}
 		dumpUnion(oper);
 	}
-
+	
 	public static void dumpUnion(ArrayList<Operator> oper){
 		ArrayList<String> unionTuples = new ArrayList<String>();
 		for(Operator op : oper){
@@ -97,12 +97,11 @@ public class OperatorTest {
 				row = op.readOneTuple();
 			}
 		}
-		System.out.println(unionTuples.size());
 	}
-
+	
 	public static void dump(Operator input){
 		if(input instanceof AggregateOperator){
-			Object[] row = input.readOneTuple();
+		Object[] row = input.readOneTuple();
 			int i = 0;
 			for(i=0; i<row.length-1; i++){
 				System.out.print(row[i].toString()+"|");
@@ -118,10 +117,10 @@ public class OperatorTest {
 						System.out.print(((StringValue)row[i]).getNotExcapedValue() + "|");
 					else
 						System.out.print(row[i]+"|");
-				}
+			}
 				System.out.print(row[i].toString());
-				System.out.println();
-				row = input.readOneTuple();
+			System.out.println();
+			row = input.readOneTuple();
 			}
 		}
 	}
