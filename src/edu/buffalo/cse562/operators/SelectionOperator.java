@@ -63,7 +63,7 @@ public class SelectionOperator implements Operator {
 				return tuple;
 			}
 		} catch (SQLException e) {
-
+			e.printStackTrace();
 			System.out.println("Exception occured in SelectionOperator.readOneTuple()");
 		}
 		return null;

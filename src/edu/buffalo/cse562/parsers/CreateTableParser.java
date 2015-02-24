@@ -28,8 +28,8 @@ public class CreateTableParser {
 				cols.put(tableName+"."+temp.getColumnName(), i);
 				dataType.add(temp.getColDataType().toString());
 			}
-			Utility.tables.put(tableName, cols);
-			Utility.tableSchema.put(tableName, dataType);
+			Utility.tables.put(tableName.toUpperCase(), cols);
+			Utility.tableSchema.put(tableName.toUpperCase(), dataType);
 		}//end if
 	}
 }

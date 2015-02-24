@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.select.Select;
@@ -34,7 +35,8 @@ public class Main {
 		Utility.tableSchema = new HashMap<String,ArrayList<String>>();
 		Utility.dataDir = new File(args[1]);
 		Utility.sqlFiles = new ArrayList<File>();
-
+		Utility.tableAlias = new HashMap<String, Table>();
+		
 		for(int i = 2; i < args.length; i++){ 
 			try{
 				File sql = new File(args[i]);

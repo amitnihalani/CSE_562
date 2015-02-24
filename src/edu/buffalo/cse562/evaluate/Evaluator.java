@@ -23,6 +23,9 @@ public class Evaluator extends Eval{
 		int columnID = 0;
 		if(c.getTable()!= null && c.getTable().getName() != null){
 			t = c.getTable().getName();
+			if(Utility.tableAlias.containsKey(t)){
+				t = Utility.tableAlias.get(t).getName().toUpperCase();
+			}
 			if(schema.containsKey(t+"."+c.getColumnName())){
 				columnID = schema.get(t+"."+c.getColumnName());
 				return (LeafValue) tuple[columnID];
@@ -37,11 +40,11 @@ public class Evaluator extends Eval{
 			}
 		}
 		else{ 
-			if(Utility.alias.containsKey(c.getColumnName()))
+			if(Utility.alias != null && Utility.alias.containsKey(c.getColumnName()))
 			{
 				if(schema.containsKey(Utility.alias.get(c.getColumnName()).toString())){
 					columnID = schema.get(Utility.alias.get(c.getColumnName()).toString());
-					
+
 				}else{
 					for(String key: schema.keySet()){
 						String x = key.substring(key.indexOf(".") + 1, key.length());
@@ -49,10 +52,10 @@ public class Evaluator extends Eval{
 							columnID = schema.get(key);
 						}
 					}
-					
+
 				}
 				return (LeafValue) tuple[columnID];
-				
+
 			}
 			else
 			{
@@ -63,8 +66,20 @@ public class Evaluator extends Eval{
 					}
 				}
 			}
+			
 			return (LeafValue) tuple[columnID];
 		}
 	}
+
+//	public LeafValue eval(Function f)
+//	{
+//			if(f.getName().equals("DATE")){
+//				String s = f.getParameters().getExpressions().get(0).toString();
+//				s = s.substring(1, s.length()-1);
+//				LeafValue l = new DateValue(" "+s+" ");
+//				return (LeafValue)l;
+//		}
+//		return null;
+//	}
 
 }

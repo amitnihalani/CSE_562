@@ -53,14 +53,14 @@ public class GroupByOperator implements Operator {
 		schIndex = 0;
 		sch = new HashMap<String, Integer>();
 		while(schIndex < grpByColumns.size()){
-			if(Utility.alias.containsKey(grpByColumns.get(schIndex).toString())){
+			if(Utility.alias != null && Utility.alias.containsKey(grpByColumns.get(schIndex).toString())){
 				sch.put(Utility.alias.get(grpByColumns.get(schIndex).toString()).toString(), schIndex);
 			}else{
 				sch.put(grpByColumns.get(schIndex).toString(), schIndex);
 			}
 			schIndex++;
 		}
-		
+
 
 		initialize();
 	}
@@ -106,7 +106,7 @@ public class GroupByOperator implements Operator {
 				}
 			}
 		}
-		
+
 		return temp;
 	} //readOneTuple
 
@@ -116,9 +116,19 @@ public class GroupByOperator implements Operator {
 		try {
 			while(tuple != null){
 				Evaluator eval= new Evaluator(schema,tuple);		
-				groupByKey = eval.eval(grpByColumns.get(0)).toString();
+				LeafValue l = eval.eval(grpByColumns.get(0)); 
+				if(l instanceof StringValue){
+					groupByKey = ((StringValue) l).getNotExcapedValue();
+				}
+				else
+					groupByKey = eval.eval(grpByColumns.get(0)).toString();
 				for(int i = 1; i<grpByColumns.size(); i++){
-					groupByKey += ","+eval.eval(grpByColumns.get(i)).toString();
+					LeafValue x = eval.eval(grpByColumns.get(i)); 
+					if(x instanceof StringValue){
+						groupByKey +=","+ ((StringValue) l).getNotExcapedValue();
+					}
+					else
+						groupByKey += ","+eval.eval(grpByColumns.get(i)).toString();
 				}
 				if(!groupByTuples.containsKey(groupByKey)){
 					ArrayList<Object[]> tupleArray = new ArrayList<Object[]>();
@@ -176,7 +186,7 @@ public class GroupByOperator implements Operator {
 		}
 
 
-		
+
 		ArrayList<Object> temp = null;
 		for(Object key : computedGroupedByValues.keySet()){
 			temp = new ArrayList<Object>();
@@ -190,13 +200,13 @@ public class GroupByOperator implements Operator {
 			}
 			answer.add(temp.toArray());
 		}
-		this.tableName = tableName+"-GroupBy";
+		this.tableName = tableName+"-GROUPBY";
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
 		for(SelectExpressionItem e: list){
 			schema.put(tableName+"."+e.getExpression().toString(), sch.get(e.getExpression().toString()));
 		}
 		Utility.tables.put(this.tableName, schema);
-		
+
 	}
 
 
@@ -204,7 +214,7 @@ public class GroupByOperator implements Operator {
 		// TODO Auto-generated method stub
 		String col = grpByColumns.get(i).toString();
 		int index=0;
-		if(Utility.alias.containsKey(col))
+		if(Utility.alias != null && Utility.alias.containsKey(col))
 		{
 			index=Utility.tables.get(tableName).get(tableName+"."+Utility.alias.get(col).toString());
 		}
@@ -223,19 +233,26 @@ public class GroupByOperator implements Operator {
 					index = Utility.tables.get(tableName).get(tableName+"."+col);
 				}
 			}
-				
+
 		}
 		ArrayList<String> dataType = Utility.tableSchema.get(tableName);
 		switch(dataType.get(index)){
 		case "int": 
+		case "INT":
 			return new LongValue(s); 
-		case "decimal": 
+		case "decimal":
+		case "DECIMAL":
+		case "DOUBLE":
 			return new DoubleValue(s); 
-		case "date": 
+		case "date":
+		case "DATE":
 			return new DateValue(s); 
-		case "char": 
+		case "char":
+		case "CHAR":
 			return new StringValue(" "+s+" "); 
-		case "string": 
+		case "string":
+		case "STRING":
+		case "VARCHAR":
 			return new StringValue(" "+s+" "); 
 		case "varchar": 
 			return new StringValue(" "+s+" "); 
@@ -323,14 +340,14 @@ public class GroupByOperator implements Operator {
 		Double dmin= Double.MAX_VALUE;
 		Long lmin=Long.MAX_VALUE;
 		int flag=0;
-		
+
 
 		for(Object[] tuple : tupleList){
 			if(tuple == null)
 				return null;
 
 			try {				
-//				
+				//				
 				Evaluator eval=new Evaluator(schema, tuple);
 				LeafValue leaf=eval.eval(expression);
 

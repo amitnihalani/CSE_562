@@ -24,7 +24,7 @@ public class CrossProductOperator implements Operator{
 		tableNames.add(tableName);
 		for(String table: joins){
 			tableNames.add(table);
-			String dataFileName = table.toString().toLowerCase() + ".dat";
+			String dataFileName = table.toString() + ".dat";
 			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
 			try{
 				readOps.add(new ReadOperator(new File(dataFileName), table.toString()));
@@ -94,6 +94,7 @@ public class CrossProductOperator implements Operator{
 		Utility.tables.put(newTableName, newSchema);
 		Utility.tableSchema.put(newTableName, dataType);
 		int size = size1+size2+size3+size4;
+		int rowNo = 0;
 		while(temp1 != null){
 			Object[] toReturn1 = new Object[size1];
 			for(int i = 0; i < size1; i++){

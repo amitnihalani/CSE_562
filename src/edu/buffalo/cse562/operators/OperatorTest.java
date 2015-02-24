@@ -3,24 +3,26 @@ package edu.buffalo.cse562.operators;
 import java.io.File;
 import java.util.ArrayList;
 
-import edu.buffalo.cse562.utility.Utility;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import edu.buffalo.cse562.utility.Utility;
 
 public class OperatorTest {
 
-	static boolean isAggregate = false;
-	static boolean isGroupBy = false;
+	static boolean isAggregate;
 	static boolean isJoin;
 
-	public static void executeSelect(File file, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins, ArrayList<Expression> grpByColumnRef, Expression having, boolean allColumns, Limit limit){
+	public static Operator executeSelect(Operator op, String tableName, Expression condition,ArrayList<SelectExpressionItem> list, ArrayList<Join> joins, ArrayList<Expression> grpByColumnRef, Expression having, boolean allColumns, Limit limit){
+		isAggregate = false;
 		isJoin = false;
 		ArrayList<String> joinTables = new ArrayList<String>();
-		Operator oper = new ReadOperator(file, tableName);
+//		Operator oper = new ReadOperator(file, tableName);
+		Operator oper = op;
 		ArrayList<Function> functions=null;
 		Expression onExpression = null;
 
@@ -31,17 +33,18 @@ public class OperatorTest {
 				onExpression = joins.get(0).getOnExpression();
 			}else{
 				for(int i = 0; i<joins.size(); i++){
-					joinTables.add(joins.get(i).toString());
+					Table t = (Table) joins.get(i).getRightItem();
+					joinTables.add(t.getName());
 				}
 			}
-			oper = new CrossProductOperator(oper, joinTables, tableName);
+			oper = new CrossProductOperator(oper, joinTables, tableName.toUpperCase());
 			tableName = oper.getTableName();
 		}
 		if(onExpression != null){
-			oper = new SelectionOperator(oper, Utility.tables.get(tableName), onExpression);
+			oper = new SelectionOperator(oper, Utility.tables.get(tableName.toUpperCase()), onExpression);
 		}
 		if(condition != null)
-			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);		
+			oper= new SelectionOperator(oper, Utility.tables.get(tableName.toUpperCase()), condition);		
 		if(!allColumns)
 		{		
 			functions= new ArrayList<Function>();
@@ -55,14 +58,14 @@ public class OperatorTest {
 		}
 
 		if(grpByColumnRef!=null){
-			oper = new GroupByOperator(oper, tableName, list, functions, grpByColumnRef, having);
-			oper = new ProjectOperator(oper, list, oper.getTableName(),allColumns);
+			oper = new GroupByOperator(oper, tableName.toUpperCase(), list, functions, grpByColumnRef, having);
+			oper = new ProjectOperator(oper, list, oper.getTableName().toUpperCase(),allColumns);
 		}
 		else if (isAggregate)
-			oper=new AggregateOperator(oper, Utility.tables.get(tableName), functions);
+			oper=new AggregateOperator(oper, Utility.tables.get(tableName.toUpperCase()), functions);
 		else
-			oper = new ProjectOperator(oper, list, tableName,allColumns);
-		dump(oper,limit);
+			oper = new ProjectOperator(oper, list, tableName.toUpperCase(),allColumns);
+		return oper;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,7 +18,7 @@ public class ReadOperator implements Operator {
 	BufferedReader br = null;
 	String tableName;
 
-	ReadOperator(File f, String tableName){
+	public ReadOperator(File f, String tableName){
 		this.file = f;
 		this.tableName = tableName;
 		reset();
@@ -32,6 +32,8 @@ public class ReadOperator implements Operator {
 		}
 		catch(IOException e){
 			System.out.println("IO Exception in ReadOperator.reset()");
+			
+			
 		}
 
 	}
@@ -50,27 +52,34 @@ public class ReadOperator implements Operator {
 			line=br.readLine();
 			if(line == null)
 				return null;
-			String cols[] = line.split("\\|");
+			String[] cols = line.split("\\|");
 			Object[] tuple = new Object[cols.length];
-			ArrayList<String> dataType = Utility.tableSchema.get(tableName);
+			ArrayList<String> dataType = Utility.tableSchema.get(tableName.toUpperCase());
 			for(int i=0; i<cols.length;i++){
 				switch(dataType.get(i)){
-				case "int": 
+				case "int":
+				case "INT":
 					tuple[i] = new LongValue(cols[i]); 
 					break;
-				case "decimal": 
+				case "decimal":
+				case "DECIMAL":
+				case "DOUBLE":
 					tuple[i] = new DoubleValue(cols[i]); 
 					break;
 				case "date": 
+				case "DATE":
 					tuple[i] = new DateValue(" "+cols[i]+" "); 
 					break;
 				case "char": 
+				case "CHAR":
 					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;
 				case "string": 
+				case "STRING":
 					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;
-				case "varchar": 
+				case "varchar":
+				case "VARCHAR":
 					tuple[i] = new StringValue(" "+cols[i]+" "); 
 					break;			
 				}
@@ -85,7 +94,7 @@ public class ReadOperator implements Operator {
 	@Override
 	public String getTableName() {
 		// TODO Auto-generated method stub
-		return null;
+		return tableName;
 	}
 
 }
