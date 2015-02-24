@@ -17,32 +17,20 @@ public class AggregateOperator implements Operator {
 	HashMap<String, Integer> schema;
 	String fname;
 	ArrayList<Function> functions;
-
-	public AggregateOperator(Operator input, HashMap<String, Integer> schema, Expression column, String fname) {
-		this.input=input;
-		this.schema=schema;
-		this.fname=fname;
-	}
-
-	public AggregateOperator(Operator input, HashMap<String, Integer> schema,
-			String fname) {
-		this.input=input;
-		this.schema=schema;
-		this.fname=fname;
-	}
+	String tableName;
 
 	public AggregateOperator(Operator oper, HashMap<String, Integer> hashMap,
-			ArrayList<Function> functions) {
+			ArrayList<Function> functions, String tableName) {
 		// TODO Auto-generated constructor stub
 		this.input = oper;
 		this.schema = hashMap;
 		this.functions = functions;
+		this.tableName = tableName;
 	}
 
 	@Override
 	public void reset() {
 		input.reset();
-
 	}
 
 	@Override
@@ -84,9 +72,7 @@ public class AggregateOperator implements Operator {
 					return null;
 				obj[i] = l;
 			}
-
 		}
-		
 		return obj;
 	}
 
@@ -99,10 +85,8 @@ public class AggregateOperator implements Operator {
 		int flag=0;
 		if(tuple == null)
 			return null;
-
 		try {
 			do{
-
 				Evaluator eval=new Evaluator(schema, tuple);
 				LeafValue leaf=eval.eval(expression);
 
@@ -298,6 +282,6 @@ public class AggregateOperator implements Operator {
 	@Override
 	public String getTableName() {
 		// TODO Auto-generated method stub
-		return null;
+		return tableName;
 	}
 }

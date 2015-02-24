@@ -29,22 +29,22 @@ public class OperatorTest {
 		if(joins != null){
 			if(joins.get(0).toString().contains("JOIN")){
 				isJoin = true;
-				joinTables.add(joins.get(0).getRightItem().toString());
+				joinTables.add(joins.get(0).getRightItem().toString().toUpperCase());
 				onExpression = joins.get(0).getOnExpression();
 			}else{
 				for(int i = 0; i<joins.size(); i++){
 					Table t = (Table) joins.get(i).getRightItem();
-					joinTables.add(t.getName());
+					joinTables.add(t.getName().toUpperCase());
 				}
 			}
-			oper = new CrossProductOperator(oper, joinTables, tableName.toUpperCase());
+			oper = new CrossProductOperator(oper, joinTables, tableName);
 			tableName = oper.getTableName();
 		}
 		if(onExpression != null){
-			oper = new SelectionOperator(oper, Utility.tables.get(tableName.toUpperCase()), onExpression);
+			oper = new SelectionOperator(oper, Utility.tables.get(tableName), onExpression);
 		}
 		if(condition != null)
-			oper= new SelectionOperator(oper, Utility.tables.get(tableName.toUpperCase()), condition);		
+			oper= new SelectionOperator(oper, Utility.tables.get(tableName), condition);		
 		if(!allColumns)
 		{		
 			functions= new ArrayList<Function>();
@@ -58,13 +58,13 @@ public class OperatorTest {
 		}
 
 		if(grpByColumnRef!=null){
-			oper = new GroupByOperator(oper, tableName.toUpperCase(), list, functions, grpByColumnRef, having);
-			oper = new ProjectOperator(oper, list, oper.getTableName().toUpperCase(),allColumns);
+			oper = new GroupByOperator(oper, tableName, list, functions, grpByColumnRef, having);
+			oper = new ProjectOperator(oper, list, oper.getTableName(), allColumns);
 		}
 		else if (isAggregate)
-			oper=new AggregateOperator(oper, Utility.tables.get(tableName.toUpperCase()), functions);
+			oper=new AggregateOperator(oper, Utility.tables.get(tableName), functions, tableName);
 		else
-			oper = new ProjectOperator(oper, list, tableName.toUpperCase(),allColumns);
+			oper = new ProjectOperator(oper, list, tableName, allColumns);
 		return oper;
 	}
 

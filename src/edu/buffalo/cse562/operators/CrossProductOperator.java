@@ -22,12 +22,12 @@ public class CrossProductOperator implements Operator{
 		allTuples = new ArrayList<Object[]>();
 		readOps.add((ReadOperator)oper);
 		tableNames.add(tableName);
-		for(String table: joins){
-			tableNames.add(table);
-			String dataFileName = table.toString() + ".dat";
+		for(String join: joins){
+			tableNames.add(join);
+			String dataFileName = join.toString() + ".dat";
 			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
 			try{
-				readOps.add(new ReadOperator(new File(dataFileName), table.toString()));
+				readOps.add(new ReadOperator(new File(dataFileName), join.toString()));
 			}catch(NullPointerException e){
 				System.out.println("Null pointer exception in JoinOperator()");
 			}
@@ -52,6 +52,7 @@ public class CrossProductOperator implements Operator{
 
 	void updateSchema(HashMap<String, Integer> newSchema, HashMap<String, Integer> tempSchema,
 			int size, int index, ArrayList<String> dataType){
+		
 		tempSchema = Utility.tables.get(tableNames.get(index));
 		dataType.addAll(Utility.tableSchema.get(tableNames.get(index)));
 		for(String col: tempSchema.keySet()){
@@ -94,7 +95,6 @@ public class CrossProductOperator implements Operator{
 		Utility.tables.put(newTableName, newSchema);
 		Utility.tableSchema.put(newTableName, dataType);
 		int size = size1+size2+size3+size4;
-		int rowNo = 0;
 		while(temp1 != null){
 			Object[] toReturn1 = new Object[size1];
 			for(int i = 0; i < size1; i++){

@@ -32,8 +32,8 @@ public class ReadOperator implements Operator {
 		}
 		catch(IOException e){
 			System.out.println("IO Exception in ReadOperator.reset()");
-			
-			
+
+
 		}
 
 	}
@@ -81,7 +81,13 @@ public class ReadOperator implements Operator {
 				case "varchar":
 				case "VARCHAR":
 					tuple[i] = new StringValue(" "+cols[i]+" "); 
-					break;			
+					break;
+				default:
+				{
+					if(dataType.get(i).contains("CHAR") || dataType.get(i).contains("char")){
+						tuple[i] = new StringValue(" "+cols[i]+" ");
+					}
+				}
 				}
 			}
 			return tuple;

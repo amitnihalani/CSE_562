@@ -16,7 +16,7 @@ public class CreateTableParser {
 	 * @param statement
 	 */
 	public static void parseStatement(Statement statement){
-		String tableName = ((CreateTable)statement).getTable().getName();
+		String tableName = ((CreateTable)statement).getTable().getName().toUpperCase();
 		HashMap<String, Integer> cols = new HashMap<String, Integer>();
 		ArrayList<String> dataType = new ArrayList<String>();
 		
@@ -28,8 +28,8 @@ public class CreateTableParser {
 				cols.put(tableName+"."+temp.getColumnName(), i);
 				dataType.add(temp.getColDataType().toString());
 			}
-			Utility.tables.put(tableName.toUpperCase(), cols);
-			Utility.tableSchema.put(tableName.toUpperCase(), dataType);
+			Utility.tables.put(tableName, cols);
+			Utility.tableSchema.put(tableName, dataType);
 		}//end if
 	}
 }
