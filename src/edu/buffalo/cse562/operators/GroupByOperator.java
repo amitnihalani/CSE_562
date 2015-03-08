@@ -17,6 +17,7 @@ import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 
 
@@ -37,6 +38,7 @@ public class GroupByOperator implements Operator {
 	ArrayList<Object[]> answer;
 	static int counter;
 	static int schIndex = 0;
+	static int tableFlag = 0;
 
 	public GroupByOperator(Operator oper, String tableName, ArrayList<SelectExpressionItem> list, ArrayList<Function> functions, ArrayList<Expression> grpByColumns, Expression having){
 		this.groupByTuples = new HashMap<String, ArrayList<Object[]>>();
@@ -202,36 +204,23 @@ public class GroupByOperator implements Operator {
 			schema.put(tableName+"."+e.getExpression().toString(), newSchema.get(e.getExpression().toString()));
 		}
 		Utility.tables.put(this.tableName, schema);
-
 	}
 
 
 	private Object getValue(String s, int i) {
-		// TODO Auto-generated method stub
-		String col = grpByColumns.get(i).toString();
-		int index=0;
-		if(Utility.alias != null && Utility.alias.containsKey(col))
+		String colName = grpByColumns.get(i).toString();
+		int index = getIndex(s,i);
+		ArrayList<String> dataType = null;
+	
+		if(tableFlag == 0) 
+			dataType = Utility.tableSchema.get(tableName);
+		else
 		{
-			index=Utility.tables.get(tableName).get(tableName+"."+Utility.alias.get(col).toString());
+			String table = colName.split("\\.")[0];
+			if(Utility.tableAlias.containsKey(table))
+				table = Utility.tableAlias.get(table).getName().toUpperCase();
+			dataType = Utility.tableSchema.get(table);
 		}
-		else{
-			if(col.contains("."))
-				index = Utility.tables.get(tableName).get(col);
-			else{
-				if(tableName.contains(",")){
-					for(String key: schema.keySet()){
-						String x = key.substring(key.indexOf(".") + 1, key.length());
-						if(x.equals(col)){
-							index = schema.get(key);
-						}
-					}
-				}else{
-					index = Utility.tables.get(tableName).get(tableName+"."+col);
-				}
-			}
-
-		}
-		ArrayList<String> dataType = Utility.tableSchema.get(tableName);
 		switch(dataType.get(index)){
 		case "int": 
 		case "INT":
@@ -422,9 +411,54 @@ public class GroupByOperator implements Operator {
 	}
 
 	@Override
-	public String getTableName() {
+	public Table getTable() {
 		// TODO Auto-generated method stub
-		return this.tableName;
+		return this.table;
+	}
+
+	private int getIndex(String value, int i){
+		tableFlag = 0;
+		String colName = grpByColumns.get(i).toString();
+		int index = 0;
+
+		if(colName.contains(".")){
+			index = getIndexForDot(colName);
+		}else if(Utility.alias != null && Utility.alias.containsKey(colName)){
+			colName = Utility.alias.get(colName).toString();
+			if(colName.contains("."))
+				index = getIndexForDot(colName);
+			else
+				index = getIndexforNoDot(colName);
+		}
+		else
+			index = getIndexforNoDot(colName);
+		return index;
+	}
+
+	private int getIndexForDot(String colName){
+		int index = 0;
+		tableFlag = 1;
+		String[] temp = colName.split("\\.");
+		if(Utility.tableAlias.containsKey(temp[0])){
+			String table = Utility.tableAlias.get(temp[0]).getName().toUpperCase();
+			index = Utility.tables.get(table).get(table + "." + temp[1]);
+		}else{
+			index = Utility.tables.get(temp[0]).get(colName);
+		}
+		return index;
+	}
+
+	private int getIndexforNoDot(String colName){
+		int index = 0;
+		HashMap<String, Integer> table = Utility.tables.get(tableName);
+		for(String key: table.keySet()){
+			String temp = key.substring(key.indexOf(".") + 1, key.length());
+			if(temp.equals(colName)){
+				index = table.get(key);
+				break;
+			}
+		}
+		return index;
 	}
 
 }

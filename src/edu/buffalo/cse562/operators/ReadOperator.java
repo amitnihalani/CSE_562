@@ -10,17 +10,18 @@ import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.schema.Table;
 import edu.buffalo.cse562.utility.Utility;
 
 public class ReadOperator implements Operator {
 
 	File file = null;
 	BufferedReader br = null;
-	String tableName;
+	Table table;
 
-	public ReadOperator(File f, String tableName){
+	public ReadOperator(File f, Table table){
 		this.file = f;
-		this.tableName = tableName;
+		this.table = table;
 		reset();
 	}
 
@@ -32,8 +33,6 @@ public class ReadOperator implements Operator {
 		}
 		catch(IOException e){
 			System.out.println("IO Exception in ReadOperator.reset()");
-
-
 		}
 
 	}
@@ -54,7 +53,7 @@ public class ReadOperator implements Operator {
 				return null;
 			String[] cols = line.split("\\|");
 			Object[] tuple = new Object[cols.length];
-			ArrayList<String> dataType = Utility.tableSchema.get(tableName.toUpperCase());
+			ArrayList<String> dataType = Utility.tableSchema.get(table.getName().toUpperCase());
 			for(int i=0; i<cols.length;i++){
 				switch(dataType.get(i)){
 				case "int":
@@ -98,9 +97,9 @@ public class ReadOperator implements Operator {
 	}
 
 	@Override
-	public String getTableName() {
+	public Table getTable() {
 		// TODO Auto-generated method stub
-		return tableName;
+		return table;
 	}
 
 }

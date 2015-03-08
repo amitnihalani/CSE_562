@@ -4,12 +4,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import edu.buffalo.cse562.evaluate.Evaluator;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LeafValue;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.schema.Table;
+import edu.buffalo.cse562.evaluate.Evaluator;
 
 public class AggregateOperator implements Operator {
 
@@ -17,15 +18,15 @@ public class AggregateOperator implements Operator {
 	HashMap<String, Integer> schema;
 	String fname;
 	ArrayList<Function> functions;
-	String tableName;
+	Table table;
 
 	public AggregateOperator(Operator oper, HashMap<String, Integer> hashMap,
-			ArrayList<Function> functions, String tableName) {
+			ArrayList<Function> functions, Table table) {
 		// TODO Auto-generated constructor stub
 		this.input = oper;
 		this.schema = hashMap;
 		this.functions = functions;
-		this.tableName = tableName;
+		this.table = table;
 	}
 
 	@Override
@@ -280,8 +281,8 @@ public class AggregateOperator implements Operator {
 	}
 
 	@Override
-	public String getTableName() {
+	public Table getTable() {
 		// TODO Auto-generated method stub
-		return tableName;
+		return table;
 	}
 }

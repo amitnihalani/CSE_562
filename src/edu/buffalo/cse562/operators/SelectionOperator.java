@@ -10,6 +10,7 @@ import java.util.HashMap;
 import edu.buffalo.cse562.evaluate.Evaluator;
 import net.sf.jsqlparser.expression.BooleanValue;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 
 
 
@@ -70,7 +71,7 @@ public class SelectionOperator implements Operator {
 	}
 
 	@Override
-	public String getTableName() {
+	public Table getTable() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -4,30 +4,31 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.sf.jsqlparser.schema.Table;
 import edu.buffalo.cse562.utility.Utility;
 
 public class CrossProductOperator implements Operator{
 
 	ArrayList<ReadOperator> readOps;
-	ArrayList<String> tableNames;
+	ArrayList<Table> joinTables;
 	static ArrayList<Object[]> allTuples;
-	static int counter = 0;
-	String tableName;
+	static int counter;
+	Table table;
 
-	public CrossProductOperator(Operator oper, ArrayList<String> joins,
-			String tableName) {
+	public CrossProductOperator(Operator oper, ArrayList<Table> joinTables,
+			Table table) {
 		counter = 0;
 		readOps = new ArrayList<ReadOperator>();
-		tableNames = new ArrayList<String>();
+		this.joinTables = new ArrayList<Table>();
 		allTuples = new ArrayList<Object[]>();
 		readOps.add((ReadOperator)oper);
-		tableNames.add(tableName);
-		for(String join: joins){
-			tableNames.add(join);
-			String dataFileName = join.toString() + ".dat";
+		this.joinTables.add(table);
+		this.joinTables.addAll(joinTables);
+		for(Table t: joinTables){
+			String dataFileName = t.getName().toString() + ".dat";
 			dataFileName = Utility.dataDir.toString() + File.separator + dataFileName;
 			try{
-				readOps.add(new ReadOperator(new File(dataFileName), join.toString()));
+				readOps.add(new ReadOperator(new File(dataFileName), t));
 			}catch(NullPointerException e){
 				System.out.println("Null pointer exception in JoinOperator()");
 			}
@@ -53,8 +54,8 @@ public class CrossProductOperator implements Operator{
 	void updateSchema(HashMap<String, Integer> newSchema, HashMap<String, Integer> tempSchema,
 			int size, int index, ArrayList<String> dataType){
 		
-		tempSchema = Utility.tables.get(tableNames.get(index));
-		dataType.addAll(Utility.tableSchema.get(tableNames.get(index)));
+		tempSchema = Utility.tables.get(joinTables.get(index).getAlias());
+		dataType.addAll(Utility.tableSchema.get(joinTables.get(index).getName()));
 		for(String col: tempSchema.keySet()){
 			newSchema.put(col, tempSchema.get(col)+size);
 		}
@@ -67,8 +68,8 @@ public class CrossProductOperator implements Operator{
 		Object[] temp2 = readOps.get(1).readOneTuple();
 		Object[] temp3 = null;
 		Object[] temp4 = null;
-		int size1 = Utility.tables.get(tableNames.get(0)).size();
-		int size2 = Utility.tables.get(tableNames.get(1)).size();
+		int size1 = Utility.tables.get(joinTables.get(0).getAlias()).size();
+		int size2 = Utility.tables.get(joinTables.get(1).getAlias()).size();
 		int size3 = 0;
 		int size4 = 0;
 		ArrayList<String> dataType = new ArrayList<String>();
@@ -76,22 +77,23 @@ public class CrossProductOperator implements Operator{
 		updateSchema(newSchema, tempSchema, 0, 0, dataType);
 		updateSchema(newSchema, tempSchema, size1, 1, dataType);
 
-		String newTableName = tableNames.get(0)+","+tableNames.get(1);
+		String newTableName = joinTables.get(0).getAlias()+","+joinTables.get(1).getAlias();
 
 		if(readOps.size() == 3){
 			temp3 = readOps.get(2).readOneTuple();
-			size3 = Utility.tables.get(tableNames.get(2)).size();
+			size3 = Utility.tables.get(joinTables.get(2)).size();
 			updateSchema(newSchema, tempSchema, size2+size1, 2, dataType);
-			newTableName += ","+tableNames.get(2);
+			newTableName += ","+joinTables.get(2);
 		}
 		if(readOps.size() == 4){
 			temp4 = readOps.get(3).readOneTuple();
-			size4 = Utility.tables.get(tableNames.get(3)).size();
+			size4 = Utility.tables.get(joinTables.get(3)).size();
 			updateSchema(newSchema, tempSchema, size3+size2+size1, 3, dataType);
-			newTableName += ","+tableNames.get(3);
+			newTableName += ","+joinTables.get(3);
 		}
 
-		this.tableName = newTableName;
+		this.table = new Table(newTableName, null);
+		this.table.setAlias(newTableName);
 		Utility.tables.put(newTableName, newSchema);
 		Utility.tableSchema.put(newTableName, dataType);
 		int size = size1+size2+size3+size4;
@@ -146,11 +148,6 @@ public class CrossProductOperator implements Operator{
 		}// end of 1
 	}
 
-	@Override
-	public String getTableName() {
-		// TODO Auto-generated method stub
-		return this.tableName;
-	}
 
 	public Object[] createTuple(Object[] toReturn1, Object[] toReturn2, Object[] toReturn3, Object[] toReturn4, int size){
 		Object[] toReturn = new Object[size];
@@ -180,5 +177,11 @@ public class CrossProductOperator implements Operator{
 		}
 
 		return toReturn;
+	}
+
+	@Override
+	public Table getTable() {
+		// TODO Auto-generated method stub
+		return this.table;
 	}
 }
