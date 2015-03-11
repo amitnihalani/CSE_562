@@ -28,7 +28,7 @@ public class GroupByOperator implements Operator {
 	public  HashMap<String, Integer> newSchema;
 
 	Operator op;
-	String tableName;
+	Table table;
 	HashMap<String, Integer> schema;
 	ArrayList<SelectExpressionItem> list;
 	ArrayList<Expression> grpByColumns = new ArrayList<Expression>();
@@ -40,13 +40,13 @@ public class GroupByOperator implements Operator {
 	static int schIndex = 0;
 	static int tableFlag = 0;
 
-	public GroupByOperator(Operator oper, String tableName, ArrayList<SelectExpressionItem> list, ArrayList<Function> functions, ArrayList<Expression> grpByColumns, Expression having){
+	public GroupByOperator(Operator oper, Table table, ArrayList<SelectExpressionItem> list, ArrayList<Function> functions, ArrayList<Expression> grpByColumns, Expression having){
 		this.groupByTuples = new HashMap<String, ArrayList<Object[]>>();
 		this.computedGroupedByValues = new HashMap<String, ArrayList<Object>>();
 		this.newSchema = new HashMap<String, Integer>();
 		this.op = oper;
-		this.tableName = tableName;
-		this.schema = Utility.tables.get(tableName);
+		this.table = table;
+		this.schema = Utility.tables.get(table.getAlias());
 		this.list = list;
 		this.grpByColumns = grpByColumns;
 		this.having = having;
@@ -89,7 +89,7 @@ public class GroupByOperator implements Operator {
 			counter++;
 			if(having !=null)
 			{
-				Evaluator eval=new Evaluator(Utility.tables.get(tableName), temp);
+				Evaluator eval=new Evaluator(Utility.tables.get(table.getAlias()), temp);
 				try {
 					BooleanValue b= (BooleanValue)eval.eval(having);
 					if(b.getValue())
@@ -97,7 +97,7 @@ public class GroupByOperator implements Operator {
 					else
 					{
 						temp=readOneTuple();
-						if(temp== null)
+						if(temp == null)
 						{
 							return null;
 						}
@@ -198,12 +198,13 @@ public class GroupByOperator implements Operator {
 			}
 			answer.add(temp.toArray());
 		}
-		this.tableName = tableName+"-GROUPBY";
+		String t = table.getAlias()+"-GROUPBY";
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
 		for(SelectExpressionItem e: list){
-			schema.put(tableName+"."+e.getExpression().toString(), newSchema.get(e.getExpression().toString()));
+			schema.put(t+"."+e.getExpression().toString(), newSchema.get(e.getExpression().toString()));
 		}
-		Utility.tables.put(this.tableName, schema);
+		Utility.tables.put(t, schema);
+		this.table = new Table(null, t);
 	}
 
 
@@ -213,7 +214,7 @@ public class GroupByOperator implements Operator {
 		ArrayList<String> dataType = null;
 	
 		if(tableFlag == 0) 
-			dataType = Utility.tableSchema.get(tableName);
+			dataType = Utility.tableSchema.get(table.getAlias());
 		else
 		{
 			String table = colName.split("\\.")[0];
@@ -450,11 +451,11 @@ public class GroupByOperator implements Operator {
 
 	private int getIndexforNoDot(String colName){
 		int index = 0;
-		HashMap<String, Integer> table = Utility.tables.get(tableName);
-		for(String key: table.keySet()){
+		HashMap<String, Integer> tables = Utility.tables.get(table.getAlias());
+		for(String key: tables.keySet()){
 			String temp = key.substring(key.indexOf(".") + 1, key.length());
 			if(temp.equals(colName)){
-				index = table.get(key);
+				index = tables.get(key);
 				break;
 			}
 		}

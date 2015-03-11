@@ -102,8 +102,15 @@ public class SelectParser {
 		boolean allCol = false;
 		if(body.getFromItem() instanceof SubSelect){
 			t = new Table();
-			t.setName(body.getFromItem().getAlias());
-			t.setAlias(body.getFromItem().getAlias());
+			if(body.getFromItem().getAlias() == null){
+				t.setName("SubQuery");
+				t.setAlias("SubQuery");
+				
+			}
+			else{
+				t.setName(body.getFromItem().getAlias());
+				t.setAlias(body.getFromItem().getAlias());
+			}
 			createSchema((ArrayList<SelectExpressionItem>) ((PlainSelect) ((SubSelect) body.getFromItem()).getSelectBody()).getSelectItems(), t);
 			op = getOperator((PlainSelect) ((SubSelect) body.getFromItem()).getSelectBody());
 			op = OperatorTest.executeSelect(op,
@@ -157,7 +164,7 @@ public class SelectParser {
 			Utility.tables.put(t.getAlias(), newSchema);
 		}
 	}
-	
+
 	public static void createSchema(ArrayList<SelectExpressionItem> selectItems, Table t){
 		HashMap<String, Integer> schema = new HashMap<String, Integer>();
 		for(int i = 0; i < selectItems.size(); i++){

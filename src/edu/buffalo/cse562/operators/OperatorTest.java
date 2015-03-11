@@ -61,11 +61,11 @@ public class OperatorTest {
 		}
 
 		if(grpByColumnRef!=null){
-//			oper = new GroupByOperator(oper, tableName, list, functions, grpByColumnRef, having);
-//			oper = new ProjectOperator(oper, list, oper.getTableName(), allColumns);
+			oper = new GroupByOperator(oper, table, list, functions, grpByColumnRef, having);
+			oper = new ProjectOperator(oper, list, table, allColumns);
 		}
-//		else if (isAggregate)
-//			oper=new AggregateOperator(oper, Utility.tables.get(tableName), functions, tableName);
+		else if (isAggregate)
+			oper=new AggregateOperator(oper, Utility.tables.get(table.getAlias()), functions, table);
 		else
 			oper = new ProjectOperator(oper, list, table, allColumns);
 		return oper;

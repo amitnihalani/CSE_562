@@ -1,0 +1,9 @@
+Good morning everyone!
+Today I'm here to speak about SmartFS which is a distributed peer to peer file system.
+With the rapid advent of mobile computing technologies such as Wi-Fi and 4G, there has been an exponential increase in the use of mobile phones for accesing and sharing data on the go. We have softwars such as Google Drive, Dropbox, Box for storing data on the cloud. But the latest successful attempts of hacking cloud storage has raised some serious security issues. As all the data is stored on the storage server, a single security flaw or a hack could compromise the confidentiality of your data. Apart from this, building an infrastructure for a cloud based sharing service is costtly. Hence we propose a virtual distributed file system, without the cloud.
+
+We have done a literature survey of other mobile storage system papers and have primarily based the design on BlueFS Segank and Bayou.
+BlueFS is a centralised system in which energy efficiency is the main concern. BlueFS uses a read from any and write to many model. Unlike BlueFS, SmartFS will prefer performance over energy efficiency as we think we will be able to achieve higher spees via Wi-Fi and LTE. 
+Segank is a complete peer to peer file system. Unlike Segank, SmartFS won't be a complete peer to peer file system as data will be accessed from a single user i.e. the user who is initially sharing the file.
+Bayou is a replicated, weakly consistent file storage system i.e. multiple replicas are created for each file. To maximize availability users can read and write any accessible replica. SmartFS does not replicate files, it only accesses the original file from the owner of the file and then uses a cache to store a local copy.
+All the three file systems provide read as well as write access. In order to keep things simple, SmartFS would be implemented as a read-only system.
